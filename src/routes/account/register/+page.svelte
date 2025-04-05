@@ -119,7 +119,6 @@
 			<button
 				bind:this={submitButton}
 				on:click={() => register()}
-				type="submit"
 				class="group flex items-center rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700 disabled:bg-gray-400"
 			>
 				<svg
