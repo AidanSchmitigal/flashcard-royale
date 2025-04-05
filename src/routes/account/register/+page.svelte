@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
 	import { page } from '$app/state';
+	import { auth, db } from '$lib/client/firebase';
+	import { createUserWithEmailAndPassword } from '@firebase/auth';
+	import { addDoc, collection } from '@firebase/firestore';
 
 	export let form: ActionData | null = null;
 
@@ -15,6 +17,24 @@
 		name.toString().split(' ')[0].slice(0, 1).toUpperCase() +
 		name.toString().split(' ')[0].slice(1).toLowerCase();
 	const redirect = page.url.searchParams.get('redirect');
+
+	function register() {
+		submitButton.disabled = true;
+
+		createUserWithEmailAndPassword(auth, email, password)
+			.then(async (currentUser) => {
+				await addDoc(collection(db, "users"), {
+					id: currentUser.user.uid,
+					name: name
+				});
+
+				window.location.assign('/');
+			}) .catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				console.log(errorCode, errorMessage)
+			});
+	}
 </script>
 
 <svelte:head>
@@ -27,17 +47,7 @@
 			<span class="inline-block transition-transform group-hover:-translate-x-1">←</span>&nbsp;Back
 		</a>
 		<h1 class="mb-4 text-3xl font-bold">Register</h1>
-		<form
-			method="POST"
-			data-form-type="register"
-			use:enhance={() => {
-				submitButton.disabled = true;
-				return async ({ update }) => {
-					await update();
-					if (!form?.success) submitButton.disabled = false;
-				};
-			}}
-		>
+		<form data-form-type="register">
 			{#if form}
 				<p class="mb-4 whitespace-break-spaces text-red-500">{form.message}</p>
 			{/if}
@@ -108,6 +118,7 @@
 			>
 			<button
 				bind:this={submitButton}
+				on:click={() => register()}
 				type="submit"
 				class="group flex items-center rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700 disabled:bg-gray-400"
 			>
