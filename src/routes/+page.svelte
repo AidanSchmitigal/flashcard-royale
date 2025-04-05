@@ -1,6 +1,6 @@
 <script lang="ts">
-	// import logo from '$lib/images/battle-royale-logo.webp';
-	// import logoFallback from '$lib/images/battle-royale-logo.png';
+	import logo from '$lib/images/logo-transparent.png';
+	import logoFallback from '$lib/images/logo-transparent.png';
 </script>
 
 <svelte:head>
@@ -14,10 +14,10 @@
 <section class="hero">
 	<h1>
 		<span class="logo">
-			<!-- <picture>
+			<picture>
 				<source srcset={logo} type="image/webp" />
 				<img src={logoFallback} alt="Battle Royale Logo" />
-			</picture> -->
+			</picture>
 		</span>
 	</h1>
 
