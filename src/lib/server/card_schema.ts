@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-const cards_schema = z.array(z.object({
+const card_schema = z.object({
     'question': z.string(),
     'answer': z.string(),
-}))
+})
 
-export type Card = z.infer<typeof cards_schema>
+export type Card = z.infer<typeof card_schema>
