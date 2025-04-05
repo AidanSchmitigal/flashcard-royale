@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData } from '../signup/$types';
+	import type { ActionData } from './$types';
 	import { page } from '$app/state';
 
 	export let form: ActionData | null = null;
@@ -23,7 +23,7 @@
 
 <div class="pattern-bathroom-floor-amber-100 flex h-screen items-center justify-center">
 	<div class="w-full max-w-lg rounded-lg bg-white p-8 shadow-lg">
-		<a href="/{page.url.searchParams.get('redirect') ?? ''}" class="group text-amber-500">
+		<a href={`/${page.url.searchParams.get('redirect') ?? ''}`} class="group text-amber-500">
 			<span class="inline-block transition-transform group-hover:-translate-x-1">←</span>&nbsp;Back
 		</a>
 		<h1 class="mb-4 text-3xl font-bold">Register</h1>

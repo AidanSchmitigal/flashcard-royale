@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Login | Schmitigal</title>
+	<title>Login | Flashcard Royale</title>
 </svelte:head>
 
 <div class="pattern-bathroom-floor-amber-100 flex h-screen items-center justify-center">
@@ -26,7 +26,7 @@
 				>
 			</div>
 		{:else}
-			<a href="/ page.url.searchParams.get('redirect') ?? ''}" class="group text-amber-500">
+			<a href={`/${page.url.searchParams.get('redirect') ?? ''}`} class="group text-amber-500">
 				<span class="inline-block transition-transform group-hover:-translate-x-1">←</span
 				>&nbsp;Back
 			</a>
