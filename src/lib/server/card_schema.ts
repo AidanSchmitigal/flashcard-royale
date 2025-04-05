@@ -5,4 +5,4 @@ const cards_schema = z.array(z.object({
     'answer': z.string(),
 }))
 
-type Card = z.infer<typeof cards_schema>
+export type Card = z.infer<typeof cards_schema>
