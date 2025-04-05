@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Combined imports
-	import logo from '$lib/images/logo-transparent.png';
-	import logoFallback from '$lib/images/logo-transparent.png';
+	import logo from '$lib/images/logo.png';
+	import logoFallback from '$lib/images/logo.png';
 	import { goto } from '$app/navigation';
 </script>
 
