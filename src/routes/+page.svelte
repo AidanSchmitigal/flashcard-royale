@@ -13,15 +13,6 @@
 	/>
 </svelte:head>
 
-<nav
-	class="fixed top-0 right-0 left-0 z-50 flex items-center justify-between bg-white/20 px-8 py-4"
->
-	<div class="text-2xl font-bold text-blue-900">Flashcard Royale</div>
-	<button class="rounded bg-blue-900 px-4 py-2 text-white transition-colors hover:bg-blue-800"
-		>Sign In</button
-	>
-</nav>
-
 <section
 	class="flex min-h-screen flex-col items-center justify-center bg-blue-200 p-16 text-center text-blue-900"
 >
