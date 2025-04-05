@@ -28,7 +28,7 @@
 	<div class="logo mb-4">
 		<picture>
 			<source srcset={logo} type="image/webp" />
-			<img src={logoFallback} alt="Battle Royale Logo" class="mx-auto h-24" />
+			<img src={logoFallback} alt="Battle Royale Logo" class="mx-auto h-100" />
 		</picture>
 	</div>
 
