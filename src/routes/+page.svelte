@@ -1,5 +1,8 @@
 <script lang="ts">
-    // Import statements can remain here for future use
+    // Combined imports
+    import logo from '$lib/images/logo-transparent.png';
+    import logoFallback from '$lib/images/logo-transparent.png';
+    import { goto } from '$app/navigation';
 </script>
 
 <svelte:head>
@@ -16,16 +19,22 @@
 </nav>
 
 <section class="flex flex-col justify-center items-center text-center p-16 bg-blue-200 text-blue-900 min-h-screen">
+    <div class="logo mb-4">
+        <picture>
+            <source srcset={logo} type="image/webp" />
+            <img src={logoFallback} alt="Battle Royale Logo" class="mx-auto h-24" />
+        </picture>
+    </div>
+    
     <h1 class="text-5xl font-bold mb-4 text-blue-900">Flashcard Royale</h1>
 
     <h2 class="text-2xl mb-6 text-blue-800">Drop in. Gear up. Fight to be the last one standing.</h2>
 
     <div class="flex gap-4">
-        <button 
-            class="px-6 py-3 text-base font-bold rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors"
-            on:click={() => alert('Matchmaking coming soon!')}>
+        <a href="/play"
+            class="px-6 py-3 text-base font-bold rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors">
             Play Now
-        </button>
+        </a>
         <button 
             class="px-6 py-3 text-base font-bold rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors"
             on:click={() => alert('Leaderboard coming soon!')}>
