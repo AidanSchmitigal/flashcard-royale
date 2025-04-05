@@ -41,7 +41,8 @@
 			"esbuild"
 		]
 	},
-  "dependencies": {
-    "firebase": "^11.6.0"
-  }
+	"dependencies": {
+		"firebase": "^11.6.0",
+		"zod": "^3.24.2"
+	}
 }
