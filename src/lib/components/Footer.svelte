@@ -23,6 +23,6 @@
     </div>
     
     <div class="text-center pt-6 mt-6 border-t border-white/20">
-        <p class="text-sm">Made with ❤️ by Adain, Kai, Sam and Oscar</p>
+        <p class="text-sm">Made with ❤️ by Aidan, Kai, Sam and Oscar</p>
     </div>
 </footer>
