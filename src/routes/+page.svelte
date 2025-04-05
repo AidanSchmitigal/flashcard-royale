@@ -1,88 +1,44 @@
 <script lang="ts">
-	import logo from '$lib/images/logo-transparent.png';
-	import logoFallback from '$lib/images/logo-transparent.png';
+    // Combined imports
+    import logo from '$lib/images/logo-transparent.png';
+    import logoFallback from '$lib/images/logo-transparent.png';
+    import { goto } from '$app/navigation';
 </script>
 
 <svelte:head>
-	<title>Battle Royale - Dominate the Arena</title>
-	<meta
-		name="description"
-		content="Drop in. Gear up. Survive the battlefield in the ultimate battle royale experience."
-	/>
+    <title>Flashcard Royale - Learn and Compete</title>
+    <meta
+        name="description"
+        content="Drop in. Gear up. Test your knowledge in the ultimate flashcard battle royale experience."
+    />
 </svelte:head>
 
-<section class="hero">
-	<h1>
-		<span class="logo">
-			<picture>
-				<source srcset={logo} type="image/webp" />
-				<img src={logoFallback} alt="Battle Royale Logo" />
-			</picture>
-		</span>
-	</h1>
+<nav class="fixed top-0 left-0 right-0 flex justify-between items-center px-8 py-4 bg-white/20 z-50">
+    <div class="text-2xl font-bold text-blue-900">Flashcard Royale</div>
+    <button class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition-colors">Sign In</button>
+</nav>
 
-	<h2 class="tagline">Drop in. Gear up. Fight to be the last one standing.</h2>
+<section class="flex flex-col justify-center items-center text-center p-16 bg-blue-200 text-blue-900 min-h-screen">
+    <div class="logo mb-4">
+        <picture>
+            <source srcset={logo} type="image/webp" />
+            <img src={logoFallback} alt="Battle Royale Logo" class="mx-auto h-24" />
+        </picture>
+    </div>
+    
+    <h1 class="text-5xl font-bold mb-4 text-blue-900">Flashcard Royale</h1>
 
-	<div class="cta">
-		<button on:click={() => alert('Matchmaking coming soon!')}>Play Now</button>
-		<button on:click={() => alert('Check back soon!')}>Learn More</button>
-	</div>
+    <h2 class="text-2xl mb-6 text-blue-800">Drop in. Gear up. Fight to be the last one standing.</h2>
+
+    <div class="flex gap-4">
+        <a href="/play"
+            class="px-6 py-3 text-base font-bold rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors">
+            Play Now
+        </a>
+        <button 
+            class="px-6 py-3 text-base font-bold rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors"
+            on:click={() => alert('Leaderboard coming soon!')}>
+            Leaderboard
+        </button>
+    </div>
 </section>
-
-<style>
-	.hero {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
-		padding: 4rem 1rem;
-		background: linear-gradient(to bottom, #111 0%, #1a1a1a 100%);
-		color: #f0f0f0;
-		min-height: 100vh;
-	}
-
-	h1 {
-		margin-bottom: 1rem;
-	}
-
-	.logo {
-		display: block;
-		width: 80%;
-		max-width: 600px;
-		position: relative;
-	}
-
-	.logo img {
-		width: 100%;
-		height: auto;
-		display: block;
-	}
-
-	.tagline {
-		font-size: 1.5rem;
-		margin: 1.5rem 0;
-		color: #ffce00;
-	}
-
-	.cta {
-		display: flex;
-		gap: 1rem;
-	}
-
-	button {
-		padding: 0.75rem 1.5rem;
-		font-size: 1rem;
-		font-weight: bold;
-		border: none;
-		border-radius: 8px;
-		cursor: pointer;
-		background-color: #ff4444;
-		color: white;
-		transition: background 0.3s;
-	}
-
-	button:hover {
-		background-color: #cc0000;
-	}
-</style>
