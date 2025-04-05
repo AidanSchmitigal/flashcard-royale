@@ -1,15 +1,31 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
+	import { signInWithEmailAndPassword } from 'firebase/auth';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData | null = null;
 
-	import type { PageData } from './$types';
-	export let data: PageData;
+	import { auth } from '$lib/client/firebase';
 
+	let email = form?.email ?? '';
+	let password = '';
 	let submitButton: HTMLButtonElement;
+
 	const redirect = page.url.searchParams.get('redirect');
+
+	function login() {
+		console.log("asdf")
+		submitButton.disabled = true;
+
+		signInWithEmailAndPassword(auth, email, password)
+			.then(async (_) => {
+				window.location.assign('/');
+			}) .catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				console.log(errorCode, errorMessage)
+			});
+	}
 </script>
 
 <svelte:head>
@@ -18,7 +34,7 @@
 
 <div class="pattern-bathroom-floor-amber-100 flex h-screen items-center justify-center">
 	<div class="w-full max-w-lg rounded-lg bg-white p-8 shadow-lg">
-		{#if form?.success || data.loggedIn}
+		{#if auth.currentUser != null}
 			<div class="flex flex-col items-center">
 				<h1 class="mb-4 text-2xl font-bold">You are logged in. 👍</h1>
 				<a href="/" class="rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700"
@@ -31,30 +47,21 @@
 				>&nbsp;Back
 			</a>
 			<h1 class="mb-4 text-3xl font-bold">Login</h1>
-			<form
-				method="POST"
-				data-form-type="login"
-				use:enhance={() => {
-					submitButton.disabled = true;
-					return async ({ update }) => {
-						await update();
-						if (!form?.success) submitButton.disabled = false;
-					};
-				}}
-			>
+			<form data-form-type="login">
 				{#if form}
 					<p class="mb-4 text-red-500">{form.message}</p>
 				{/if}
 				<label for="email" class="mb-2 block">Email</label>
 				<input
+					bind:value={email}
 					type="text"
 					name="email"
 					id="email"
-					value={form?.email || ''}
 					class="mb-4 w-full rounded-lg border px-3 py-2 lowercase"
 				/>
 				<label for="password" class="mb-2 block">Password</label>
 				<input
+					bind:value={password}
 					type="password"
 					name="password"
 					id="password"
@@ -62,7 +69,7 @@
 				/>
 				<button
 					bind:this={submitButton}
-					type="submit"
+					on:click={() => login()}
 					class="group flex items-center rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700 disabled:bg-gray-400"
 				>
 					<svg
