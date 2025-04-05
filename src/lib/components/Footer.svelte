@@ -2,7 +2,7 @@
     <div class="max-w-6xl mx-auto flex flex-wrap justify-between px-8">
         <div class="flex-1 min-w-[200px] mb-6">
             <h3 class="text-xl mb-4">Flashcard Royale</h3>
-            <p>Made for Beaverhacks 2025</p>
+            <p>Made for OSU Beaverhacks 2025</p>
         </div>
         
         <div class="flex-1 min-w-[200px] mb-6">
