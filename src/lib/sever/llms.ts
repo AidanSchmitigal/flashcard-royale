@@ -51,10 +51,11 @@ export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any |
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
 			 Flashcards: ${promptData}`)
 
-		return text;//JSON.parse(removePartsBeforeAndAfterBrackets(text));
+		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
-		return cards.map((card) => Math.floor(Math.random() * 11));
+		return err;
+		return cards.map((card) => { return { attack: Math.floor(Math.random() * 11), defense: Math.floor(Math.random() * 11) } });
 	}
 }
 
