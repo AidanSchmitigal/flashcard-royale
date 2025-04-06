@@ -23,27 +23,30 @@
 	in:float={{ duration: 400, opacity: 100, x: '100vw' }}
 	out:float={{ duration: 400, opacity: 100, x: '-100vw', out: true }}
 >
-	<div class="flex min-w-full items-center justify-center gap-8 overflow-x-hidden py-16">
+	<div class="flex w-full items-center justify-center gap-8 overflow-hidden">
 		<!-- Player cards -->
-		<div class="flex w-full flex-row-reverse gap-1">
-			{#each battleManager.playerHand as card, i (card.id)}
-				<div
-					class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
-					class:border-blue-500={i === 0}
-					class:animate-attack-right={battleManager.attacking && i === 0}
-					out:scale
-					animate:flip={{ duration: 300 }}
-				>
-					<GameCard {card} {battleManager} />
-					{#if i === 0}
-						<div
-							class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white"
-						>
-							Active
-						</div>
-					{/if}
-				</div>
-			{/each}
+		<div class="flex w-full justify-center gap-1 py-16">
+			<div class="flex w-full flex-row-reverse gap-1">
+				{#each battleManager.playerHand as card, i (card.id)}
+					<div
+						class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
+						class:border-blue-500={i === 0}
+						class:animate-attack-right={battleManager.attacking && i === 0}
+						class:z-10={i === 0}
+						out:scale
+						animate:flip={{ duration: 300 }}
+					>
+						<GameCard {card} {battleManager} />
+						{#if i === 0}
+							<div
+								class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white"
+							>
+								Active
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
 		</div>
 
 		<!-- VS text in the middle -->
@@ -52,27 +55,29 @@
 		>
 			VS
 		</div>
-
-		<!-- Enemy cards -->
-		<div class="flex w-full gap-1">
-			{#each battleManager.enemyHand as card, i (card.id)}
-				<div
-					class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
-					class:border-red-500={i === 0}
-					class:animate-attack-left={battleManager.attacking && i === 0}
-					out:scale
-					animate:flip={{ duration: 300 }}
-				>
-					<GameCard {card} {battleManager} />
-					{#if i === 0}
-						<div
-							class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white"
-						>
-							Target
-						</div>
-					{/if}
-				</div>
-			{/each}
+		<div class="flex w-full justify-center gap-1 py-16">
+			<!-- Enemy cards -->
+			<div class="flex w-full gap-1">
+				{#each battleManager.enemyHand as card, i (card.id)}
+					<div
+						class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
+						class:border-red-500={i === 0}
+						class:animate-attack-left={battleManager.attacking && i === 0}
+						class:z-10={i === 0}
+						out:scale
+						animate:flip={{ duration: 300 }}
+					>
+						<GameCard {card} {battleManager} />
+						{#if i === 0}
+							<div
+								class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white"
+							>
+								Target
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
 		</div>
 	</div>
 
@@ -103,14 +108,16 @@
 				<div class="flex flex-grow flex-col">
 					<input
 						placeholder="Write your answer here..."
-						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none"
+						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none disabled:bg-gray-200"
 						bind:value={userInput}
+						disabled={battleManager.attacking}
 					/>
 				</div>
 			</for>
 			<button
 				type="submit"
-				class="w-full cursor-pointer rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
+				class="w-full cursor-pointer rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700 disabled:bg-gray-300"
+				disabled={battleManager.attacking}
 			>
 				Attack!
 			</button>

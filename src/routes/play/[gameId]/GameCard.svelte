@@ -25,7 +25,6 @@
 	class="flex h-full flex-col overflow-hidden rounded-lg shadow-md {getCardGradientClass(
 		card.base_health
 	)}"
-	draggable="true"
 	style="filter: hue-rotate({uuidAsNumber}deg)"
 >
 	<div class="flex flex-1 flex-col p-3">
