@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request }) => {
         const processedCardStats = await processFlashcards(cards);
         return json({ 
             success: true,
-            x: processedCardStats
+            x: processedCardStats.toString()
         });
         
         // Ensure each card has all the required fields
