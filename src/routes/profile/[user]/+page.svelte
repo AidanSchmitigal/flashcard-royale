@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth, db } from '$lib/client/firebase';
+	import { auth, db, user } from '$lib/client/firebase';
 	import { onMount } from 'svelte';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import type { PageProps } from './$types';
@@ -9,7 +9,7 @@
 	import type { User } from '@firebase/auth';
 	import { fetchUserDecks } from '$lib/client/getUserDecks';
 
-	const user = writable<User | null>(null);
+	// const user = writable<User | null>(null);
 	const userData = writable<any>(null);
 	const userDecks = writable([]);
 	const avatarColor = writable('blue');
@@ -34,35 +34,35 @@
 		}
 	}
 
-	onMount(async () => {
-		auth.onAuthStateChanged(async (currentUser) => {
-			user.set(currentUser);
+	// onMount(async () => {
+	// 	auth.onAuthStateChanged(async (currentUser) => {
+	// 		user.set(currentUser);
 
-			if (currentUser) {
-				const userDocRef = doc(db, 'users', currentUser.uid);
-				const docSnap = await getDoc(userDocRef);
+	// 		if (currentUser) {
+	// 			const userDocRef = doc(db, 'users', currentUser.uid);
+	// 			const docSnap = await getDoc(userDocRef);
 
-				if (docSnap.exists()) {
-					const data = docSnap.data();
-					userData.set(data);
+	// 			if (docSnap.exists()) {
+	// 				const data = docSnap.data();
+	// 				userData.set(data);
 
-					if (data.avatarColor) {
-						avatarColor.set(data.avatarColor);
-					}
-				} else {
-					userData.set({
-						name: currentUser.displayName ?? 'No Name',
-						email: currentUser.email,
-						wins: 0,
-						gamesPlayed: 0
-					});
-				}
+	// 				if (data.avatarColor) {
+	// 					avatarColor.set(data.avatarColor);
+	// 				}
+	// 			} else {
+	// 				userData.set({
+	// 					name: currentUser.displayName ?? 'No Name',
+	// 					email: currentUser.email,
+	// 					wins: 0,
+	// 					gamesPlayed: 0
+	// 				});
+	// 			}
 
-				const decks = await fetchUserDecks(currentUser.uid);
-				userDecks.set(decks);
-			}
-		});
-	});
+	// 			const decks = await fetchUserDecks(currentUser.uid);
+	// 			userDecks.set(decks);
+	// 		}
+	// 	});
+	// });
 
 	const badges = [
 		{
@@ -86,6 +86,8 @@
 </script>
 
 <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 pt-32">
+	{JSON.stringify($user)}
+	{JSON.stringify($userData)}
 	<div class="mb-4 flex items-center gap-4">
 		<div>
 			<div class="relative">

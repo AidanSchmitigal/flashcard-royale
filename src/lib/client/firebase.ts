@@ -1,7 +1,6 @@
-import { browser } from '$app/environment';
 import { initializeApp } from 'firebase/app';
 import { getAuth, type User } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { doc, getFirestore } from 'firebase/firestore';
 import { writable } from 'svelte/store';
 
 const firebaseConfig = {
@@ -19,8 +18,16 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const user = writable<User | null>(null);
 
-if (browser) auth.onAuthStateChanged((new_user) => user.update(() => new_user));
+auth.onAuthStateChanged((new_user) => user.update(() => new_user));
 
 export function signOut() {
 	return auth.signOut();
+}
+
+export function getUserData() {
+	if (!auth.currentUser) return null;
+	return {
+		user: auth.currentUser,
+		...doc(db, 'users', auth.currentUser.uid)
+	};
 }

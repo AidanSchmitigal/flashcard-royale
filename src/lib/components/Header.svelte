@@ -78,7 +78,7 @@
 			<div class="flex items-center gap-4">
 				{#if $displayName}
 					<a
-						href="/profile/me"
+						href="/profileD/"
 						class="flex items-center gap-2 rounded px-3 py-2 transition hover:bg-white/40"
 					>
 						<!-- Avatar Circle -->
