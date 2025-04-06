@@ -11,7 +11,7 @@
 <div class="stats-overview">
 	<div class="stats-header">
 		<h2>Game Statistics</h2>
-		<span class="xp-level">Level {stats.level} • {stats.xp} XP</span>
+		<span class="xp-level">Level {stats.level} • {stats.gamesWon} Wins</span>
 	</div>
 
 	<div class="stat-cards">

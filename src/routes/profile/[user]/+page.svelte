@@ -57,35 +57,13 @@
 						</button>
 
 						{#if showAvatarPicker && $signedInUser != null && $signedInUser.uid == user.uid}
-							<div class="absolute top-28 left-0 z-10 grid grid-cols-5 gap-2 rounded bg-white p-4 shadow">
-								<!-- Unlockable Avatars -->
-								{#each unlockableAvatars as avatar}
-									{#if user.stats.gamesWon >= avatar.requiredWins}
-										<button
-											aria-label="Change Avatar Color"
-											class={`h-10 w-10 cursor-pointer rounded-full transition hover:scale-110 ${avatar.class}`}
-											onclick={async () => {
-												user.avatarColor = avatar.id as AvatarColor;
-												await changeAvatarColor(avatar.id as AvatarColor);
-												showAvatarPicker = false;
-												window.location.reload();
-											}}
-										></button>
-									{:else}
-										<div class="relative h-10 w-10 rounded-full opacity-50 cursor-not-allowed">
-											<div class={`h-full w-full rounded-full ${avatar.class}`}></div>
-											<div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white bg-black/50 rounded-full">
-												{avatar.requiredWins}
-											</div>
-										</div>
-									{/if}
-								{/each}
-
-								<!-- Free Avatars -->
+							<div class="absolute top-28 left-0 z-10 grid grid-cols-3 gap-4 rounded bg-white p-5 shadow-lg" style="min-width: 240px">
+								<!-- All Avatars - Make all accessible regardless of wins -->
+								<h3 class="col-span-3 mb-1 text-sm font-semibold text-gray-600">Standard Colors</h3>
 								{#each freeAvatars as avatar}
 									<button
 										aria-label="Change Avatar Color"
-										class={`h-10 w-10 cursor-pointer rounded-full transition hover:scale-110 ${avatar.class}`}
+										class={`h-12 w-12 cursor-pointer rounded-full border border-gray-200 transition hover:scale-110 hover:shadow-md ${avatar.class}`}
 										onclick={async () => {
 											user.avatarColor = avatar.id as AvatarColor;
 											await changeAvatarColor(avatar.id as AvatarColor);
@@ -94,6 +72,7 @@
 										}}
 									></button>
 								{/each}
+								
 							</div>
 						{/if}
 					</div>
@@ -113,7 +92,7 @@
 
 			<!-- Battle Pass Meter -->
 			<div class="mb-6 w-full">
-				<h3 class="mb-1 font-semibold text-blue-800">Battle Pass Progress</h3>
+				<h3 class="mb-1 font-semibold text-blue-800">Level Progress</h3>
 				<div class="h-5 w-full overflow-hidden rounded-full bg-gray-200">
 					<div
 						class="h-5 bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
@@ -121,7 +100,7 @@
 					></div>
 				</div>
 				<p class="mt-1 text-sm text-gray-600">
-					{user.stats.gamesWon ?? 0} wins • {Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% towards max
+					{user.stats.gamesWon ?? 0} wins • {Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% towards next level
 				</p>
 			</div>
 
