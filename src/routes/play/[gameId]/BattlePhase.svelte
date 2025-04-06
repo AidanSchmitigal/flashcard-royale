@@ -1,4 +1,5 @@
 <script lang="ts">
+	import logoSmall from '$lib/images/logo-small.png';
 	import type { Card } from './game/index';
 	import { fly, fade, slide, scale } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
@@ -82,7 +83,7 @@
 			class="relative flex h-48 w-96 flex-col items-center justify-center rounded-md bg-white p-3 shadow-lg"
 		>
 			<img
-				src="/src/lib/images/logo-small.png"
+				src={logoSmall}
 				alt="Card"
 				class="pointer-events-none absolute top-4 left-4 mb-2 h-10 w-auto object-contain"
 			/>
@@ -95,7 +96,7 @@
 				class="relative flex h-48 w-96 flex-col overflow-hidden rounded-md bg-white p-3 shadow-lg"
 			>
 				<img
-					src="/src/lib/images/logo-small.png"
+					src={logoSmall}
 					alt="Card"
 					class="pointer-events-none absolute top-4 left-4 mb-2 h-10 w-auto object-contain"
 				/>
