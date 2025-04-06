@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Card } from './game';
 	import type { BattleManager } from './game/manager.svelte';
+	import logoSmall from '$lib/images/logo-small.png';
 
 	const { card, battleManager }: { card: Card; battleManager: BattleManager } = $props();
 
@@ -25,8 +26,9 @@
 	draggable="true"
 >
 	<div class="flex flex-1 flex-col p-3">
+		
 		<img
-			src="/src/lib/images/logo-small.png"
+			src={logoSmall}
 			alt="Card"
 			class="pointer-events-none h-15 w-auto object-contain"
 		/>
