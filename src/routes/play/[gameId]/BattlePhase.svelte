@@ -46,7 +46,7 @@
 						out:scale
 						animate:flip={{ duration: 300 }}
 					>
-						<GameCard {card} {battleManager} />
+						<GameCard {card} {battleManager} small="true" />
 						{#if i === 0}
 							<div
 								class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white"

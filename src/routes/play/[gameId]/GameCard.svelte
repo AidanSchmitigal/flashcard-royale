@@ -3,7 +3,11 @@
 	import type { BattleManager } from './game/manager.svelte';
 	import logoSmall from '$lib/images/logo-small.png';
 
-	const { card, battleManager }: { card: Card; battleManager: BattleManager } = $props();
+	const {
+		card,
+		battleManager,
+		small = false
+	}: { card: Card; battleManager: BattleManager; small?: boolean } = $props();
 
 	function getCardGradientClass(hp: number): string {
 		if (hp >= 50) {
@@ -33,7 +37,9 @@
 			<div class="mt-2 flex w-full justify-center gap-2">
 				{#each battleManager.appliedPowerUps[card.id] as powerUp}
 					<div
-						class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-2xl shadow-md"
+						class="flex {small
+							? 'h-8 w-8 text-xl'
+							: 'h-12 w-12 text-2xl'} items-center justify-center rounded-full bg-gray-100 text-2xl shadow-md"
 						title={powerUp.name}
 					>
 						{powerUp.icon}
