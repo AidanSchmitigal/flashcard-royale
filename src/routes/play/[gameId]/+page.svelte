@@ -66,44 +66,45 @@
     }
     
     function processTurnWithoutInput(correct: boolean) {
-        // Process turn with the result
-        const result = battle.processTurn(correct);
-        logs = [result.log, ...logs];
-        
-        // Mark the target card for damage animation
-        if (correct) {
-            cardTakingDamage = '';
-        }
-        
-        // Mark player card for damage animation if it took damage
-        if (result.playerTookDamage) {
-            playerTakingDamage = true;
-        }
-        
-        // After a short delay, update UI and move to next prompt or end game
-        setTimeout(() => {
-            playerTakingDamage = false;
-            
-            if (result.done) {
-                gameOver = true;
-            } else {
-                // Update our local arrays with battle manager's state
-                playerCards = battle.getPlayerCards();
-                enemyCards = battle.getEnemyCards();
-                
-                // Sync activated cards set with battle manager's state
-                activatedCardIds = new Set(battle.correctlyAnsweredCardIds);
-                
-                if (result.needNewPrompt) {
-                    // Player needs to answer for the new card
-                    loadCurrentPrompt();
-                } else {
-                    // Continue with the next turn immediately if no new prompt needed
-                    processTurnWithoutInput(true);
-                }
-            }
-        }, correct ? 1000 : 2000); // Shorter delay for auto-attacks
+    // Process turn with the result
+    const result = battle.processTurn(correct);
+    logs = [result.log, ...logs];
+    
+    // Update our local arrays with battle manager's state IMMEDIATELY
+    playerCards = battle.getPlayerCards();
+    enemyCards = battle.getEnemyCards();
+    
+    // Mark the target card for damage animation
+    if (correct && enemyCards.length > 0) {
+        cardTakingDamage = enemyCards[0].id; // Set to the current target's ID
     }
+    
+    // Mark player card for damage animation if it took damage
+    if (result.playerTookDamage) {
+        playerTakingDamage = true;
+    }
+    
+    // After a short delay, clean up animations and move to next prompt or end game
+    setTimeout(() => {
+        playerTakingDamage = false;
+        cardTakingDamage = '';
+        
+        if (result.done) {
+            gameOver = true;
+        } else {
+            // Sync activated cards set with battle manager's state
+            activatedCardIds = new Set(battle.correctlyAnsweredCardIds);
+            
+            if (result.needNewPrompt) {
+                // Player needs to answer for the new card
+                loadCurrentPrompt();
+            } else {
+                // Continue with the next turn immediately if no new prompt needed
+                processTurnWithoutInput(true);
+            }
+        }
+    }, correct ? 2000 : 2000); // Shorter delay for auto-attacks
+}
 
     function handleSubmit() {
         // Validate the answer and show feedback

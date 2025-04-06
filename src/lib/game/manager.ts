@@ -32,6 +32,7 @@ export class BattleManager {
 	}
 
 	processTurn(correct: boolean): { log: string; done: boolean; needNewPrompt: boolean; playerTookDamage: boolean; playerDamageAmount: number } {
+		console.log("Processing turn...");
 		const attacker = this.getCurrentAttacker();
 		let log = "";
 		let needNewPrompt = false;
@@ -40,6 +41,7 @@ export class BattleManager {
 		const target = this.getCurrentDefender();
 		
 		// Process player attack
+		console.log("Processing player attack...");
 		if (correct) {
 			// Mark this card as correctly answered
 			this.correctlyAnsweredCardIds.add(attacker.id);
@@ -47,17 +49,18 @@ export class BattleManager {
 			// Apply damage to target
 			const damage = attacker.damage;
 			target.hp -= damage;
-			log = `${attacker.term} deals ${damage} damage to ${target.term}!`;
+			log = `Player: ${attacker.term} deals ${damage} damage to Enemy: ${target.term}!`;
 		} else {
 			// When incorrect, the current card takes damage first
 			log = `${attacker.term} missed the attack`;
 		}
-
+		console.log("Player attack processed.");
+		console.log("Processing enemy attack...");
 		// Process enemy attack: 80% chance to hit
 		if (Math.random() < 0.8) {
 			let damage = target.damage;
 			attacker.hp -= damage;
-			log = `${target.term} attacks ${attacker.term} for ${damage} damage!`;
+			log = `Enemy: ${target.term} attacks Player: ${attacker.term} for ${damage} damage!`;
 			
 			// Check if player card is defeated
 			if (attacker.hp <= 0) {
@@ -66,7 +69,7 @@ export class BattleManager {
 				log += ` ${attacker.term} is defeated!`;
 			}
 		} else {
-			log = `${target.term} tried to attack but missed!`;
+			log = `Enemy: ${target.term} tried to attack but missed!`;
 		}
 
 		// Move player card to the back of the queue if wrong answer and survived
@@ -100,34 +103,9 @@ export class BattleManager {
 		if (this.playerQueue.length > 0 && attacker !== this.playerQueue[0]) {
 			needNewPrompt = true;
 		}
-		
+		console.log("Turn processed.");
+		console.log("Player health:", attacker.hp);
+		console.log("Enemy health:", target.hp);
 		return { log, done, needNewPrompt, playerTookDamage, playerDamageAmount };
-	}
-
-	processEnemyAttack(): { log: string; hit: boolean; damage: number } {
-		const enemy = this.getCurrentDefender();
-		const playerCard = this.getCurrentAttacker();
-		let log = "";
-		let hit = false;
-		let damage = 0;
-		
-		// 80% chance to hit
-		if (Math.random() < 0.8) {
-			hit = true;
-			damage = enemy.damage;
-			playerCard.hp -= damage;
-			log = `${enemy.term} attacks ${playerCard.term} for ${damage} damage!`;
-			
-			// Check if player card is defeated
-			if (playerCard.hp <= 0) {
-				this.playerQueue.shift(); // Remove defeated player card
-				this.correctlyAnsweredCardIds.delete(playerCard.id); // Remove from correctly answered set
-				log += ` ${playerCard.term} is defeated!`;
-			}
-		} else {
-			log = `${enemy.term} tried to attack but missed!`;
-		}
-		
-		return { log, hit, damage };
 	}
 }
