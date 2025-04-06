@@ -84,8 +84,7 @@
 					cardCount: data.cardCount || data.cards?.length || 0,
 					cards: data.cards || [],
 					createdBy: 'You', // Display "You" for user's own decks
-					createdAt: data.createdAt,
-					doc: doc
+					createdAt: data.createdAt
 				};
 			});
 		} catch (error) {
@@ -121,8 +120,12 @@
 		showPreview = true;
 	}
 
-	function deleteDeck(deck: any) {
-		deleteDoc(deck.doc.ref).then(() => fetchUserDecks(db, userId))
+	function deleteDeck(deck: Deck) {
+		console.log(deck.id)
+		getDocs(query(collection(db, 'decks'), where(deck.id, '==', 'id'))).then((resp) => {
+			console.log(resp.docs)
+			deleteDoc(resp.docs[0].ref).then(() => fetchUserDecks(db, userId!))
+		});
 	}
 
 	function closePreview() {
