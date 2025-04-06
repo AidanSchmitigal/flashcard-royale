@@ -116,6 +116,20 @@
         showImportModal = false;
     }
     
+    function handleImportSuccess(event) {
+        // Show a success message (optional)
+        const message = `Successfully imported ${event.detail.cardCount} cards!`;
+        console.log(message);
+        
+        // Close the modal
+        closeImportModal();
+        
+        // Reload the page to show the new deck
+        setTimeout(() => {
+            window.location.reload();
+        }, 500); // Small delay for better UX
+    }
+    
     function openPreview(deck: Deck) {
         previewDeck = deck;
         showPreview = true;
@@ -300,6 +314,9 @@
 
 {#if showImportModal}
     <div transition:fade={{ duration: 150 }}>
-        <ImportDeckModal onClose={closeImportModal} />
+        <ImportDeckModal 
+            onClose={closeImportModal} 
+            on:import-success={handleImportSuccess}
+        />
     </div>
 {/if}
