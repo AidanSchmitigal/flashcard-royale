@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth, db } from '$lib/client/firebase.svelte';
+	import { auth, db } from '$lib/client/firebase';
 	import { onMount } from 'svelte';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import type { PageProps } from './$types';
@@ -85,7 +85,7 @@
 	const joinDate = '2025-04-03T12:34:56Z';
 </script>
 
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
+<div class="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 pt-32">
 	<div class="mb-4 flex items-center gap-4">
 		<div>
 			<div class="relative">

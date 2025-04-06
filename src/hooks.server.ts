@@ -1,5 +1,5 @@
 // src/hooks.server.js
-import { auth } from '$lib/client/firebase.svelte';
+import { auth } from '$lib/client/firebase';
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {

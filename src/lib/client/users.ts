@@ -1,5 +1,5 @@
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { db } from './firebase.svelte';
+import { db } from './firebase';
 
 const users = collection(db, 'users');
 

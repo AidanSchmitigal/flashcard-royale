@@ -1,6 +1,6 @@
 <!-- src/lib/components/ImportDeckModal.svelte -->
 <script lang="ts">
-	import { auth } from '$lib/client/firebase.svelte';
+	import { auth } from '$lib/client/firebase';
 	import { createDeck } from '$lib/client/game/data';
 	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
 	import { createEventDispatcher } from 'svelte';

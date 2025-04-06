@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { signInWithEmailAndPassword } from 'firebase/auth';
 	import type { ActionData } from './$types';
-	import { auth } from '$lib/client/firebase.svelte';
+	import { auth } from '$lib/client/firebase';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
@@ -117,10 +117,9 @@
 					class="text-amber-500 hover:underline">Register here</a
 				>
 			</p>
-			<p class="text-sm text-right">
+			<p class="text-right text-sm">
 				<a href="/account/PasswordReset" class="text-blue-600 hover:underline">Forgot Password?</a>
-			  </p>
-			  
+			</p>
 		{/if}
 	</div>
 </div>

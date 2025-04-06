@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
 	import { page } from '$app/state';
-	import { auth, db } from '$lib/client/firebase.svelte';
+	import { auth, db } from '$lib/client/firebase';
 	import { createUserWithEmailAndPassword } from '@firebase/auth';
 	import { addDoc, collection, doc, setDoc } from '@firebase/firestore';
 	import { updateProfile } from 'firebase/auth';

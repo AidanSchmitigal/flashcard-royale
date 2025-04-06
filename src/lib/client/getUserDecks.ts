@@ -1,5 +1,5 @@
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from './firebase.svelte';
+import { db } from './firebase';
 
 export async function fetchUserDecks(userId: string) {
 	const decksRef = collection(db, 'decks');

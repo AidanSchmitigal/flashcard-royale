@@ -5,7 +5,7 @@
 	import RecommendedDeckCard from '$lib/components/RecommendedDeckCard.svelte';
 	import ImportDeckModal from '$lib/components/ImportDeckModal.svelte';
 	import { redirect } from '@sveltejs/kit';
-	import { user } from '$lib/client/firebase.svelte';
+	import { user } from '$lib/client/firebase';
 
 	let recentDecks: { id: string; title: string; cards: number; lastPlayed: string }[] = [];
 	let recommendedDecks: {

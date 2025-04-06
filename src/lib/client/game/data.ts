@@ -1,5 +1,5 @@
 import { addDoc, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
-import { db } from '../firebase.svelte';
+import { db } from '../firebase';
 
 const games = collection(db, 'games');
 const decks = collection(db, 'decks');
