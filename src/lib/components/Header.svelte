@@ -4,17 +4,24 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { signOut } from 'firebase/auth';
+	import type { User } from 'firebase/auth';
+	import { getName } from '../client/getName'; // path may vary
 
-
-	const user = writable<null | object>(null); // store to track auth state
+	const displayName = writable<string | null>(null);
+	const user = writable<User | null>(null);
 
 	onMount(() => {
-		const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+		const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
 			user.set(currentUser);
+			if (currentUser) {
+				const name = await getName(currentUser.uid);
+				console.log('Fetched name:', name); // DEBUG LINE
+				displayName.set(name);
+			}
 		});
-
-		return () => unsubscribe(); // cleanup
+		return () => unsubscribe();
 	});
+
 
 	function handleSignOut() {
 	signOut(auth)
@@ -60,7 +67,9 @@
 			</div>
 		{:else}
 			<div class="flex items-center gap-4">
-				<p class="text-blue-900 font-semibold">You are signed in</p>
+				{#if $displayName}
+				<p class="text-blue-900 font-semibold">Signed in as: {$displayName}</p>
+				{/if}
 				<button
 					on:click={handleSignOut}
 					class="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
@@ -69,4 +78,5 @@
 				</button>
 			</div>
 		{/if}
+	</div>
 </header>

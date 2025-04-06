@@ -4,6 +4,7 @@
 	import { auth, db } from '$lib/client/firebase';
 	import { createUserWithEmailAndPassword } from '@firebase/auth';
 	import { addDoc, collection, doc, setDoc } from '@firebase/firestore';
+	import { updateProfile } from 'firebase/auth';
 
 	export let form: ActionData | null = null;
 
@@ -19,8 +20,9 @@
 		name.toString().split(' ')[0].slice(1).toLowerCase();
 	const redirect = page.url.searchParams.get('redirect');
 
+
 	function register() {
-	loginError = ''; // reset any previous error
+	loginError = '';
 
 	if (password !== passwordConfirm) {
 		loginError = 'Passwords do not match.';
@@ -36,21 +38,24 @@
 
 	createUserWithEmailAndPassword(auth, email, password)
 		.then(async (currentUser) => {
+			await updateProfile(currentUser.user, {
+				displayName: name
+			});
+
+			await currentUser.user.reload(); // This is what makes it work for the header
+
 			await setDoc(doc(db, 'users', currentUser.user.uid), {
 				name: name
 			});
+
 			window.location.assign('/');
 		})
 		.catch((error) => {
-			const errorCode = error.code;
-			const errorMessage = error.message;
-
-			loginError = errorMessage; // this now always shows in the UI
-			console.log(errorCode, errorMessage);
-
+			loginError = error.message;
 			submitButton.disabled = false;
 		});
 }
+
 
 </script>
 
