@@ -80,7 +80,7 @@ export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]
 			cards[i].base_health = Math.min(Math.max(Math.round(difficulties[i].defense + random_defense), 0), 10)
 		}
 
-		return difficulties;
+		return cards;
 	} catch (err) {
 		console.error('Failed to use cards:', err);
 		return cards;
