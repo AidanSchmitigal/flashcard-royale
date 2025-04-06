@@ -12,61 +12,80 @@
 	let importMethod = 'quizlet';
 	let quizletLink = '';
 	let quizletData = '';
-	let file = null;
+	let deckTitle = ''; // New variable for deck title
 	let isProcessing = false;
+	let processingLLM = false;
 	let error = '';
+
+	// Define proper types for cards - matching the required format
+	type FlashCard = {
+		term: string;
+		definition: string;
+		id: string;
+		base_health: number;
+		base_dmg: number;
+	};
 
 	const dispatch = createEventDispatcher();
 
-	function handleFileInput(event) {
-		const selectedFile = event.target.files[0];
-		if (selectedFile) {
-			file = selectedFile;
-			// Read the file if needed
-		}
-	}
-
-	async function processFlashcards(cardsJson: any): Promise<Card[]> {
-		const resp = await fetch('/api/process_cards', {
-			method: 'POST',
-			body: JSON.stringify(cardsJson)
-		});
-
-		const json = await resp.json();
-		return json as Card[];
-	}
-
-	async function handleImport() {
-		if (auth.currentUser == null) {
-			error = 'Please sign in';
-			return;
-		}
-
-		isProcessing = true;
-		error = '';
-
+	// Helper function to parse Quizlet response
+	function parseQuizletData(jsonData: string) {
 		try {
-			if (importMethod === 'quizlet') {
-				const cardsJson = get_cards(quizletData);
-				const cards = await processFlashcards(cardsJson);
-				createDeck({
-					id: uuidv4(),
-					ownersIds: auth.currentUser ? [auth.currentUser.uid] : [],
-					cards: cards
-				});
+			const data = JSON.parse(jsonData);
+			
+			// Check if data has the expected structure
+			if (!data.responses || !data.responses[0]?.models?.studiableItem) {
+				throw new Error('Invalid Quizlet data format');
 			}
-
-			// ?
-			dispatch('import-success', {
-				method: importMethod
-				// Additional data...
+			
+			const studiableItems = data.responses[0].models.studiableItem;
+			
+			return studiableItems.map(item => {
+				// Extract term and definition from the card sides
+				const term = item.cardSides.find(side => side.sideId === 0)?.media[0]?.plainText || '';
+				const definition = item.cardSides.find(side => side.sideId === 1)?.media[0]?.plainText || '';
+				
+				// Create a properly formatted card with all required fields
+				return {
+					term,
+					definition,
+					id: uuidv4(), // Generate unique ID for each card
+					base_health: 5, // Default value to be updated by LLM
+					base_dmg: 10 // Default value to be updated by LLM
+				};
 			});
-
-			// onClose();
 		} catch (err) {
-			error = 'Failed to import deck. Please try again.';
+			console.error('Error parsing Quizlet data:', err);
+			throw new Error('Failed to parse Quizlet data. Please check the format and try again.');
+		}
+	}
+
+	// Process cards with the LLM API
+	async function processCardsWithLLM(cards: FlashCard[]) {
+		try {
+			processingLLM = true;
+			const cardsToProcess = cards.map(({ term, definition }) => ({ term, definition }));
+			
+			const response = await fetch('/api/process-deck', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ cards: cardsToProcess })
+			});
+			
+			const data = await response.json();
+			
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to process cards');
+			}
+			
+			return data.processedCards;
+		} catch (err) {
+			console.error('Error processing cards with LLM:', err);
+			throw new Error('Failed to process cards with AI: ' + (err.message || ''));
 		} finally {
-			isProcessing = false;
+			processingLLM = false;
 		}
 	}
 
@@ -75,12 +94,71 @@
 		try {
 			parsed = parse_url(quizletLink)!;
 		} catch {
-			// This doesn't trigger
-			error = 'Failed to parse';
+			error = 'Failed to parse URL';
 			return;
 		}
 
 		window.open(gen_url(parsed))?.focus();
+	}
+
+	async function handleImport() {
+		if (auth.currentUser == null) {
+			error = 'Please sign in to import a deck';
+			return;
+		}
+
+		if (!quizletData.trim()) {
+			error = 'Please paste the Quizlet data';
+			return;
+		}
+
+		if (!deckTitle.trim()) {
+			error = 'Please enter a name for your deck';
+			return;
+		}
+
+		isProcessing = true;
+		error = '';
+
+		try {
+			if (importMethod === 'quizlet') {
+				// Parse the quizlet data into cards using the new parsing function
+				const cards = parseQuizletData(quizletData);
+				
+				if (!cards || cards.length === 0) {
+					throw new Error('No valid flashcards found in the data');
+				}
+
+				// Process with LLM
+				const processedCards = await processCardsWithLLM(cards);
+				
+				if (!processedCards) {
+					throw new Error('Failed to process cards with AI');
+				}
+				
+				// Create the deck with all required fields and user-provided title
+				createDeck({
+					id: uuidv4(),
+					createdBy : auth.currentUser ? auth.currentUser.uid : '0',
+					cards: processedCards,
+					title: deckTitle, // Use the user-provided title
+					cardCount: processedCards.length
+				});
+
+				// Dispatch success event
+				dispatch('import-success', {
+					method: importMethod,
+					cardCount: processedCards.length
+				});
+
+				onClose();
+			}
+		} catch (err) {
+			console.error('Import error:', err);
+			error = err.message || 'Failed to import deck. Please try again.';
+		} finally {
+			isProcessing = false;
+		}
 	}
 </script>
 
@@ -117,6 +195,20 @@
 				</button>
 			</div>
 
+			<!-- Add deck title input field -->
+			<div class="mb-5">
+				<label class="block">
+					<span class="text-sm font-medium text-gray-700">Deck Name*</span>
+					<input
+						type="text"
+						bind:value={deckTitle}
+						placeholder="Enter a name for your deck"
+						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+						required
+					/>
+				</label>
+			</div>
+
 			<div class="space-y-4">
 				<label class="block">
 					<span class="text-sm font-medium text-gray-700">Quizlet URL</span>
@@ -128,19 +220,18 @@
 					/>
 					<button
 						on:click={openQuizletUrl}
-						class="flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
+						class="mt-2 flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
 						disabled={isProcessing}>Open Data</button
 					>
-					<span class="text-sm font-medium text-gray-700">Quizlet Data</span>
-					<input
-						type="text"
+					<span class="mt-3 text-sm font-medium text-gray-700">Quizlet Data</span>
+					<textarea
 						bind:value={quizletData}
 						placeholder={'{"response...'}
-						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-					/>
+						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none min-h-[100px]"
+					></textarea>
 				</label>
 				<p class="text-sm text-gray-500">
-					Paste the URL of any public Quizlet flashcard set to import it.
+					Paste the URL of any public Quizlet flashcard set, then click "Open Data" and paste the JSON response.
 				</p>
 			</div>
 
@@ -174,7 +265,11 @@
 							d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 						></path>
 					</svg>
-					Importing...
+					{#if processingLLM}
+						Processing with AI...
+					{:else}
+						Importing...
+					{/if}
 				{:else}
 					Import Deck
 				{/if}

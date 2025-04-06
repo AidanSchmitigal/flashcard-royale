@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { processFlashcards } from '$lib/sever/statsLLM';
+import { v4 as uuidv4 } from 'uuid';
 
 export const POST: RequestHandler = async ({ request }) => {
     try {
@@ -12,7 +13,18 @@ export const POST: RequestHandler = async ({ request }) => {
         }
 
         // Process the cards through the LLM
-        const processedCards = await processFlashcards(cards);
+        const processedCardStats = await processFlashcards(cards);
+        
+        // Ensure each card has all the required fields
+        const processedCards = processedCardStats.map(card => {
+            return {
+                term: card.term,
+                definition: card.definition,
+                id: card.id || uuidv4(), // Use existing ID or generate new one
+                base_health: card.base_health || 5,
+                base_dmg: card.base_dmg || 10
+            };
+        });
         
         return json({ 
             success: true,

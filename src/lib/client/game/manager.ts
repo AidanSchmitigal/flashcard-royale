@@ -111,8 +111,10 @@ export class BattleManager {
 			needNewPrompt = true;
 		}
 		
-		// Check if game is over
-		const done = this.enemyQueue.length === 0 || this.playerQueue.length === 0;
+		// Check if game is over - modified to detect simultaneous defeat
+		const playerDefeated = this.playerQueue.length === 0;
+		const enemyDefeated = this.enemyQueue.length === 0;
+		const done = playerDefeated || enemyDefeated;
 		
 		// Always need a new prompt if the front card changed
 		if (this.playerQueue.length > 0 && attacker !== this.playerQueue[0]) {

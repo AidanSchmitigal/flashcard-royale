@@ -5,7 +5,7 @@
 	import type { PageProps } from './$types';
 	import GameHistoryCard from '$lib/components/GameHistory.svelte';
 	import StatsOverview from '$lib/components/StatsOverview.svelte';
-	import { writable } from 'svelte/store';
+	import { writable, get } from 'svelte/store';
 	import type { User } from '@firebase/auth';
 	import { fetchUserDecks } from '$lib/client/getUserDecks';
 
@@ -17,8 +17,14 @@
 	let showAvatarPicker = false;
 
 	async function changeAvatarColor(color: string) {
-		avatarColor.set(color);
-		showAvatarPicker = false;
+		const currentUser = get(user);
+		const currentUserData = get(userData);
+		const isFree = freeAvatars.find(a => a.id === color);
+		const isUnlocked = unlockableAvatars.find(a => a.id === color && currentUserData?.wins >= a.requiredWins);
+
+		if (isFree || isUnlocked) {
+			avatarColor.set(color);
+			showAvatarPicker = false;
 
 		if ($user) {
 			updateUser($user.uid, {
@@ -58,11 +64,10 @@
 	// });
 
 	const badges = [
-		{
-			icon: 'icons',
-			description: 'descriptions'
-		}
+		{ icon: '🏆', description: 'Top Scorer' },
+		{ icon: '🎯', description: 'Accuracy Master' }
 	];
+
 	const games = [
 		{
 			result: 'hkjsdf',
@@ -104,22 +109,31 @@
 			</div>
 		</div>
 		<div>
-			<h2 class="text-2xl font-semibold text-gray-800">
-				{#if $userData?.name}
-					{$userData.name}
-				{:else}
-					No Name
-				{/if}
-			</h2>
-			<p class="my-2 text-neutral-300">
+			<h2 class="text-2xl font-semibold text-gray-800">{$userData?.name ?? 'No Name'}</h2>
+			<p class="text-gray-500">{$userData?.email}</p>
+			<p class="mt-1 text-sm text-neutral-400">
 				Member since {new Date(joinDate).toLocaleDateString()}
 			</p>
-			<div class="flex gap-4">
+			<div class="mt-2 flex gap-3">
 				{#each badges as badge}
-					<span class="cursor-help text-2xl" title={badge.description}>{badge.icon}</span>
+					<span class="cursor-help text-xl" title={badge.description}>{badge.icon}</span>
 				{/each}
 			</div>
 		</div>
+	</div>
+
+	<!-- Battle Pass Meter -->
+	<div class="mb-6 w-full">
+		<h3 class="mb-1 font-semibold text-blue-800">Battle Pass Progress</h3>
+		<div class="h-5 w-full overflow-hidden rounded-full bg-gray-200">
+			<div
+				class="h-5 bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
+				style={`width: ${Math.min(($userData?.wins ?? 0) * 3.33, 100)}%`}
+			></div>
+		</div>
+		<p class="mt-1 text-sm text-gray-600">
+			{$userData?.wins ?? 0} wins • {100 - Math.min(($userData?.wins ?? 0) * 3.33, 100)}% to max
+		</p>
 	</div>
 
 	<StatsOverview stats={$user.stats} />
