@@ -1,29 +1,128 @@
 <script lang="ts">
+	import { auth, db } from '$lib/client/firebase.svelte';
 	import { onMount } from 'svelte';
+	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import type { PageProps } from './$types';
 	import GameHistoryCard from '$lib/components/GameHistory.svelte';
 	import StatsOverview from '$lib/components/StatsOverview.svelte';
+	import { writable } from 'svelte/store';
+	import type { User } from '@firebase/auth';
+	import { fetchUserDecks } from '$lib/client/getUserDecks';
 
-	let { data }: PageProps = $props();
-	let { user, games, stats } = data;
+	const user = writable<User | null>(null);
+	const userData = writable<any>(null);
+	const userDecks = writable([]);
+	const avatarColor = writable('blue');
+
+	const avatarColorClasses: Record<string, string> = {
+		blue: 'bg-blue-400',
+		green: 'bg-green-400',
+		red: 'bg-red-400',
+		purple: 'bg-purple-400',
+		orange: 'bg-orange-400'
+	};
+
+	let showAvatarPicker = false;
+
+	async function changeAvatarColor(color: string) {
+		avatarColor.set(color);
+		showAvatarPicker = false;
+
+		if ($user) {
+			const userDocRef = doc(db, 'users', $user.uid);
+			await updateDoc(userDocRef, { avatarColor: color });
+		}
+	}
+
+	onMount(async () => {
+		auth.onAuthStateChanged(async (currentUser) => {
+			user.set(currentUser);
+
+			if (currentUser) {
+				const userDocRef = doc(db, 'users', currentUser.uid);
+				const docSnap = await getDoc(userDocRef);
+
+				if (docSnap.exists()) {
+					const data = docSnap.data();
+					userData.set(data);
+
+					if (data.avatarColor) {
+						avatarColor.set(data.avatarColor);
+					}
+				} else {
+					userData.set({
+						name: currentUser.displayName ?? 'No Name',
+						email: currentUser.email,
+						wins: 0,
+						gamesPlayed: 0
+					});
+				}
+
+				const decks = await fetchUserDecks(currentUser.uid);
+				userDecks.set(decks);
+			}
+		});
+	});
+
+	const badges = [
+		{
+			icon: 'icons',
+			description: 'descriptions'
+		}
+	];
+	const games = [
+		{
+			result: 'hkjsdf',
+			gameName: 'hkjsdf',
+			playedAt: 'hkjsdf',
+			score: 'hkjsdf',
+			playTime: 'hkjsdf',
+			xpEarned: 'hkjsdf',
+			achievements: 'hkjsdf'
+		}
+	];
+	const stats = 'STATS!!!';
+	const joinDate = '2025-04-03T12:34:56Z';
 </script>
 
 <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
 	<div class="mb-4 flex items-center gap-4">
 		<div>
-			<img
-				src={user.avatarUrl}
-				alt="{user.username}'s avatar"
-				class="h-32 w-32 rounded-full object-cover"
-			/>
+			<div class="relative">
+				<div
+					class={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-4 border-white text-4xl font-bold text-white shadow-md ${avatarColorClasses[$avatarColor]}`}
+					on:click={() => (showAvatarPicker = !showAvatarPicker)}
+				>
+					{#if $userData?.name}
+						{$userData.name.charAt(0).toUpperCase()}
+					{/if}
+				</div>
+
+				{#if showAvatarPicker}
+					<div class="absolute top-28 left-0 z-10 flex gap-2 rounded bg-white p-2 shadow">
+						{#each Object.keys(avatarColorClasses) as color}
+							<div
+								class={`h-10 w-10 cursor-pointer rounded-full ${avatarColorClasses[color]} transition hover:scale-110`}
+								on:click={() => changeAvatarColor(color)}
+							></div>
+						{/each}
+					</div>
+				{/if}
+			</div>
 		</div>
 		<div>
-			<h1 class="text-4xl">{user.username}</h1>
+			<h2 class="text-2xl font-semibold text-gray-800">
+				{#if $userData?.name}
+					{$userData.name}
+				{:else}
+					No Name
+				{/if}
+			</h2>
 			<p class="my-2 text-neutral-300">
-				Member since {new Date(user.joinDate).toLocaleDateString()}
+				Member since {new Date(joinDate).toLocaleDateString()}
 			</p>
 			<div class="flex gap-4">
-				{#each user.badges as badge}
+				{#each badges as badge}
 					<span class="cursor-help text-2xl" title={badge.description}>{badge.icon}</span>
 				{/each}
 			</div>
