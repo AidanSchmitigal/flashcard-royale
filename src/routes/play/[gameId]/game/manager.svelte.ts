@@ -242,8 +242,8 @@ export class BattleManager {
 		this.attacking = true;
 
 		// Create clones of the cards to work with
-		const attacker = { ...this.playerHand[0] };
-		const target = { ...this.enemyHand[0] };
+		const attacker = this.playerHand[0];
+		const target = this.enemyHand[0];
 
 		// Calculate new health values
 		const newAttackerHealth = attacker.base_health - (robotValid ? target.base_dmg : 0);
