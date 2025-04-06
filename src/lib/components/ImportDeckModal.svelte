@@ -36,10 +36,9 @@
 		isProcessing = true;
 		error = '';
 
-		try {
+		//try {
 			if (importMethod === 'quizlet') {
-				const deckJson = JSON.parse(quizletData)
-				const cardsJson = get_cards(deckJson)
+				const cardsJson = get_cards(quizletData)
 				const cards = await processFlashcards(cardsJson)
 				createDeck({ id: uuidv4(), ownersIds: auth.currentUser ? [auth.currentUser.uid] : [], cards: cards })
 			}
@@ -51,11 +50,11 @@
 			});
 
 			// onClose();
-		} catch (err) {
-			error = 'Failed to import deck. Please try again.';
-		} finally {
-			isProcessing = false;
-		}
+		//} catch (err) {
+		//	error = 'Failed to import deck. Please try again.';
+		//} finally {
+		//	isProcessing = false;
+		//}
 	}
 
 	function openQuizletUrl() {
