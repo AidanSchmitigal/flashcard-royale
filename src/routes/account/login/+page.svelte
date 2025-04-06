@@ -3,18 +3,29 @@
 	import { signInWithEmailAndPassword } from 'firebase/auth';
 	import type { ActionData } from './$types';
 	import { auth } from '$lib/client/firebase';
+	import { onMount } from 'svelte';
+	import { writable } from 'svelte/store';
 
 	export let form: ActionData | null = null;
 
 	let email = form?.email ?? '';
 	let password = '';
 	let submitButton: HTMLButtonElement;
-	let loginError: string = ''; // NEW: for displaying login errors
+	let loginError: string = '';
 
 	const redirect = page.url.searchParams.get('redirect');
 
+	const user = writable<null | object>(null);
+
+	onMount(() => {
+		const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+			user.set(currentUser);
+		});
+		return () => unsubscribe();
+	});
+
 	function login() {
-		loginError = ''; // reset any previous error
+		loginError = '';
 		submitButton.disabled = true;
 
 		signInWithEmailAndPassword(auth, email, password)
@@ -25,13 +36,10 @@
 				const errorCode = error.code;
 				const errorMessage = error.message;
 
-				// Trigger reactivity correctly:
-				loginError = error.message; // this should already work
-
+				loginError = errorMessage;
 				console.log(errorCode, errorMessage);
 				submitButton.disabled = false;
 			});
-
 	}
 </script>
 
@@ -42,7 +50,7 @@
 
 <div class="pattern-bathroom-floor-amber-100 flex h-screen items-center justify-center">
 	<div class="w-full max-w-lg rounded-lg bg-white p-8 shadow-lg">
-		{#if auth.currentUser != null}
+		{#if $user != null}
 			<div class="flex flex-col items-center">
 				<h1 class="mb-4 text-2xl font-bold">You are logged in. 👍</h1>
 				<a href="/" class="rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700"
