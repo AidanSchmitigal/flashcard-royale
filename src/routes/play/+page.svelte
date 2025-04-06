@@ -5,8 +5,8 @@
 	import RecommendedDeckCard from '$lib/components/RecommendedDeckCard.svelte';
 	import ImportDeckModal from '$lib/components/ImportDeckModal.svelte';
 
-	let recentDecks = [];
-	let recommendedDecks = [];
+	let recentDecks: { id: string; title: string; cards: number; lastPlayed: string }[] = [];
+	let recommendedDecks: { id: string; title: string; cards: number; difficulty: string; category: string }[] = [];
 	let showImportModal = false;
 
 	onMount(async () => {

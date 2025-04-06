@@ -44,6 +44,11 @@
 			loadCurrentPrompt();
 		}
 	}
+
+	// test validate answer
+	console.log('HI');
+	const result = validateAnswer('ple', 'apple');
+	console.log(result);
 </script>
 
 {#if !gameOver}
