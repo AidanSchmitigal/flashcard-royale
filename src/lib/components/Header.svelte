@@ -1,40 +1,8 @@
 <script lang="ts">
-	import { auth } from '$lib/client/firebase';
+	import { user, signOut } from '$lib/client/firebase.svelte';
 	import logoSmall from '$lib/images/logo-small.png';
-	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { signOut } from 'firebase/auth';
-	import type { User } from 'firebase/auth';
-	import { getName } from '../client/getName'; // path may vary
-
-	const displayName = writable<string | null>(null);
-	const user = writable<User | null>(null);
-
-	onMount(() => {
-		const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-			user.set(currentUser);
-			if (currentUser) {
-				const name = await getName(currentUser.uid);
-				console.log('Fetched name:', name); // DEBUG LINE
-				displayName.set(name);
-			}
-		});
-		return () => unsubscribe();
-	});
-
-
-	function handleSignOut() {
-	signOut(auth)
-		.then(() => {
-			user.set(null);
-		})
-		.catch((error) => {
-			console.error('Error signing out:', error);
-		});
-}
 </script>
-
-
 
 <header
 	class="fixed top-0 right-0 left-0 z-50 flex items-center justify-between bg-white/20 px-8 py-4"
@@ -67,11 +35,11 @@
 			</div>
 		{:else}
 			<div class="flex items-center gap-4">
-				{#if $displayName}
-				<p class="text-blue-900 font-semibold">Signed in as: {$displayName}</p>
+				{#if $user.displayName}
+					<p class="font-semibold text-blue-900">Signed in as: {$user.displayName}</p>
 				{/if}
 				<button
-					on:click={handleSignOut}
+					on:click={signOut}
 					class="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
 				>
 					Sign Out

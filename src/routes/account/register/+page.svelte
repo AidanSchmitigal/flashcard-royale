@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
 	import { page } from '$app/state';
-	import { auth, db } from '$lib/client/firebase';
+	import { auth, db } from '$lib/client/firebase.svelte';
 	import { createUserWithEmailAndPassword } from '@firebase/auth';
 	import { addDoc, collection, doc, setDoc } from '@firebase/firestore';
 	import { updateProfile } from 'firebase/auth';
@@ -20,43 +20,40 @@
 		name.toString().split(' ')[0].slice(1).toLowerCase();
 	const redirect = page.url.searchParams.get('redirect');
 
-
 	function register() {
-	loginError = '';
+		loginError = '';
 
-	if (password !== passwordConfirm) {
-		loginError = 'Passwords do not match.';
-		return;
-	}
+		if (password !== passwordConfirm) {
+			loginError = 'Passwords do not match.';
+			return;
+		}
 
-	if (password.length < 6) {
-		loginError = 'Password must be at least 6 characters.';
-		return;
-	}
+		if (password.length < 6) {
+			loginError = 'Password must be at least 6 characters.';
+			return;
+		}
 
-	submitButton.disabled = true;
+		submitButton.disabled = true;
 
-	createUserWithEmailAndPassword(auth, email, password)
-		.then(async (currentUser) => {
-			await updateProfile(currentUser.user, {
-				displayName: name
+		createUserWithEmailAndPassword(auth, email, password)
+			.then(async (currentUser) => {
+				await updateProfile(currentUser.user, {
+					displayName: name
+				});
+
+				await currentUser.user.reload(); // This is what makes it work for the header
+
+				await setDoc(doc(db, 'users', currentUser.user.uid), {
+					name: name
+				});
+
+				window.location.assign('/');
+			})
+			.catch((error) => {
+				loginError = error.message;
+				submitButton.disabled = false;
 			});
-
-			await currentUser.user.reload(); // This is what makes it work for the header
-
-			await setDoc(doc(db, 'users', currentUser.user.uid), {
-				name: name
-			});
-
-			window.location.assign('/');
-		})
-		.catch((error) => {
-			loginError = error.message;
-			submitButton.disabled = false;
-		});
-}
-
-
+	}
 </script>
 
 <svelte:head>
@@ -70,7 +67,7 @@
 		</a>
 		<h1 class="mb-4 text-3xl font-bold">Register</h1>
 		{#if loginError}
-		<p class="mb-4 text-red-500">{loginError}</p>
+			<p class="mb-4 text-red-500">{loginError}</p>
 		{/if}
 		<form data-form-type="register">
 			{#if form}

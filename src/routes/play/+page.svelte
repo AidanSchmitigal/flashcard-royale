@@ -4,12 +4,22 @@
 	import RecentDeckCard from '$lib/components/RecentDeckCard.svelte';
 	import RecommendedDeckCard from '$lib/components/RecommendedDeckCard.svelte';
 	import ImportDeckModal from '$lib/components/ImportDeckModal.svelte';
+	import { redirect } from '@sveltejs/kit';
+	import { user } from '$lib/client/firebase.svelte';
 
 	let recentDecks: { id: string; title: string; cards: number; lastPlayed: string }[] = [];
-	let recommendedDecks: { id: string; title: string; cards: number; difficulty: string; category: string }[] = [];
+	let recommendedDecks: {
+		id: string;
+		title: string;
+		cards: number;
+		difficulty: string;
+		category: string;
+	}[] = [];
 	let showImportModal = false;
 
 	onMount(async () => {
+		// if ($user == null) redirect(303, '/account/login');
+
 		// Fetch recent decks from API/store
 		recentDecks = await fetchRecentDecks();
 

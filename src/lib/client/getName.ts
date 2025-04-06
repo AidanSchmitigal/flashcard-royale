@@ -1,5 +1,5 @@
 import { getDoc, doc } from 'firebase/firestore';
-import { db } from '$lib/client/firebase';
+import { db } from '$lib/client/firebase.svelte';
 
 export async function getName(uid: string): Promise<string | null> {
 	try {

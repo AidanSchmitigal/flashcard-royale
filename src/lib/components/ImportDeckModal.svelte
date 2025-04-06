@@ -1,6 +1,6 @@
 <!-- src/lib/components/ImportDeckModal.svelte -->
 <script lang="ts">
-	import { auth } from '$lib/client/firebase';
+	import { auth } from '$lib/client/firebase.svelte';
 	import { createDeck } from '$lib/client/game/data';
 	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
 	import { createEventDispatcher } from 'svelte';
@@ -28,12 +28,12 @@
 
 	async function processFlashcards(cardsJson: any): Promise<Card[]> {
 		const resp = await fetch('/api/process_cards', {
-			method: "POST",
-			body: JSON.stringify(cardsJson),
-		})
+			method: 'POST',
+			body: JSON.stringify(cardsJson)
+		});
 
-		const json = await resp.json()
-		return json as Card[]
+		const json = await resp.json();
+		return json as Card[];
 	}
 
 	async function handleImport() {
@@ -47,9 +47,13 @@
 
 		try {
 			if (importMethod === 'quizlet') {
-				const cardsJson = get_cards(quizletData)
-				const cards = await processFlashcards(cardsJson)
-				createDeck({ id: uuidv4(), ownersIds: auth.currentUser ? [auth.currentUser.uid] : [], cards: cards })
+				const cardsJson = get_cards(quizletData);
+				const cards = await processFlashcards(cardsJson);
+				createDeck({
+					id: uuidv4(),
+					ownersIds: auth.currentUser ? [auth.currentUser.uid] : [],
+					cards: cards
+				});
 			}
 
 			// ?
@@ -67,16 +71,16 @@
 	}
 
 	function openQuizletUrl() {
-		let parsed
+		let parsed;
 		try {
-			parsed = parse_url(quizletLink)!
+			parsed = parse_url(quizletLink)!;
 		} catch {
 			// This doesn't trigger
-			error = 'Failed to parse'
-			return
+			error = 'Failed to parse';
+			return;
 		}
 
-		window.open(gen_url(parsed))?.focus()
+		window.open(gen_url(parsed))?.focus();
 	}
 </script>
 
@@ -125,13 +129,13 @@
 					<button
 						on:click={openQuizletUrl}
 						class="flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
-						disabled={isProcessing}
-					>Open Data</button>
+						disabled={isProcessing}>Open Data</button
+					>
 					<span class="text-sm font-medium text-gray-700">Quizlet Data</span>
 					<input
 						type="text"
 						bind:value={quizletData}
-						placeholder={"{\"response..."}
+						placeholder={'{"response...'}
 						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
 					/>
 				</label>

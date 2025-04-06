@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { signInWithEmailAndPassword } from 'firebase/auth';
 	import type { ActionData } from './$types';
-	import { auth } from '$lib/client/firebase';
+	import { auth } from '$lib/client/firebase.svelte';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
@@ -42,7 +42,6 @@
 			});
 	}
 </script>
-
 
 <svelte:head>
 	<title>Login | Flashcard Royale</title>
