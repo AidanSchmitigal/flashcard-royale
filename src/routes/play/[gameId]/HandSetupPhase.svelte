@@ -108,26 +108,18 @@
 </script>
 
 <div
-	class="mx-auto flex max-w-7xl flex-col gap-6 p-4 pt-32"
+	class="pattern-happy-intersection-neutral-100 mx-auto flex h-screen w-full flex-col items-center gap-6 p-4 pt-32"
 	in:float={{ duration: 400, opacity: 100, x: '100vw' }}
 	out:float={{ duration: 400, opacity: 100, x: '-100vw', out: true }}
 >
 	<h2 class="text-center text-2xl font-bold">Plan Your Battle Hand</h2>
-	<div class="self-end rounded-full bg-amber-100 px-4 py-2 font-bold text-amber-800 shadow-md">
-		Coins:
-		{#key battleManager.playerCoins}
-			<span class="inline-block" out:fly={{ y: 10, duration: 200 }}
-				>{battleManager.playerCoins}</span
-			>
-		{/key}
-	</div>
 
 	<div class="flex flex-row-reverse flex-wrap justify-center gap-4">
 		{#each battleManager.playerHand as card, i (card.id)}
 			<div
 				aria-label="Drag card to rearrange order"
 				role="listitem"
-				class="relative h-64 w-48 rounded-lg border-2 border-dashed p-2 transition-all duration-200 ease-in-out"
+				class="relative h-64 w-48 cursor-grab rounded-lg border-2 border-dashed p-2 transition-all duration-200 ease-in-out"
 				class:border-blue-500={dropTargetIndex === i}
 				class:bg-blue-50={dropTargetIndex === i}
 				class:border-amber-500={powerUpTargetCard?.id === card.id}
@@ -147,8 +139,18 @@
 		{/each}
 	</div>
 
-	<div class="rounded-lg bg-gray-50 p-4">
-		<h3 class="mb-3 text-lg font-semibold">Available Power-ups</h3>
+	<div class="max-w-7xl rounded-lg bg-gray-50 p-4">
+		<div class="mb-3 flex justify-between">
+			<h3 class="text-lg font-semibold">Available Power-ups</h3>
+			<div class="rounded-full bg-amber-100 px-4 py-2 font-bold text-amber-800 shadow-md">
+				Coins:
+				{#key battleManager.playerCoins}
+					<span class="inline-block" out:fly={{ y: 10, duration: 200 }}
+						>{battleManager.playerCoins}</span
+					>
+				{/key}
+			</div>
+		</div>
 		<div class="flex flex-wrap gap-4">
 			{#each availablePowerUps as powerUp (powerUp.id)}
 				<div

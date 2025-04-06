@@ -10,14 +10,16 @@
 	const { battleManager }: { battleManager: BattleManager } = $props();
 
 	let userInput = $state('');
-	function handleSubmit() {}
+	function handleSubmit() {
+		battleManager.processTurn(userInput);
+	}
 	let showFeedback = false;
 	let isCorrect = false;
 	const logs: string[] = [];
 </script>
 
 <div
-	class="flex h-screen w-full flex-col items-center justify-center"
+	class="pattern-happy-intersection-neutral-100 flex h-screen w-full flex-col items-center justify-center"
 	in:float={{ duration: 400, opacity: 100, x: '100vw' }}
 	out:float={{ duration: 400, opacity: 100, x: '-100vw', out: true }}
 >
@@ -27,7 +29,7 @@
 		<div class="flex flex-row-reverse gap-1">
 			{#each battleManager.playerHand as card, i (`player-${i}-${card.id}`)}
 				<div
-					class="relative h-40 w-28 rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
+					class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
 					class:border-blue-500={i === 0}
 					transition:fade
 				>
@@ -54,7 +56,7 @@
 		<div class="flex gap-1">
 			{#each battleManager.enemyHand as card, i (`enemy-${i}-${card.id}`)}
 				<div
-					class="relative h-40 w-28 rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
+					class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
 					class:border-red-500={i === 0}
 					transition:fade
 				>
@@ -75,42 +77,43 @@
 	<div class="mx-auto flex gap-16">
 		<!-- Note card display -->
 		<div
-			class="flex h-48 w-96 flex-col items-center justify-center rounded-md bg-white p-3 shadow-lg"
+			class="relative flex h-48 w-96 flex-col items-center justify-center rounded-md bg-white p-3 shadow-lg"
 		>
 			<img
 				src="/src/lib/images/logo-small.png"
 				alt="Card"
-				class="pointer-events-none mb-2 h-10 w-auto object-contain"
+				class="pointer-events-none absolute top-4 left-4 mb-2 h-10 w-auto object-contain"
 			/>
 			<p class="text-xl font-semibold">{battleManager.playerHand[0].term}</p>
-			<div class="mt-auto w-full border-t border-gray-200"></div>
 		</div>
 
 		<!-- Answer input card -->
-		<div class="flex h-48 w-96 flex-col overflow-hidden rounded-md bg-white p-3 shadow-lg">
-			<img
-				src="/src/lib/images/logo-small.png"
-				alt="Card"
-				class="pointer-events-none mb-2 h-10 w-auto object-contain"
-			/>
-			<div class="flex flex-grow flex-col">
-				<input
-					placeholder="Write your translation here..."
-					class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none"
-					disabled={showFeedback}
-					bind:value={userInput}
+		<div class="flex flex-col gap-4">
+			<div
+				class="relative flex h-48 w-96 flex-col overflow-hidden rounded-md bg-white p-3 shadow-lg"
+			>
+				<img
+					src="/src/lib/images/logo-small.png"
+					alt="Card"
+					class="pointer-events-none absolute top-4 left-4 mb-2 h-10 w-auto object-contain"
 				/>
+				<div class="flex flex-grow flex-col">
+					<input
+						placeholder="Write your answer here..."
+						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none"
+						disabled={showFeedback}
+						bind:value={userInput}
+					/>
+				</div>
 			</div>
-			<div class="mt-auto w-full border-t border-gray-200 pt-2">
-				<button
-					type="submit"
-					class="w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
-					disabled={showFeedback}
-					on:click={handleSubmit}
-				>
-					Attack!
-				</button>
-			</div>
+			<button
+				type="submit"
+				class="w-full cursor-pointer rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
+				disabled={showFeedback}
+				onclick={handleSubmit}
+			>
+				Attack!
+			</button>
 		</div>
 	</div>
 </div>

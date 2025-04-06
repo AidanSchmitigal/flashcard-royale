@@ -19,7 +19,7 @@
 
 <div
 	role="listitem"
-	class="flex h-full cursor-grab flex-col overflow-hidden rounded-lg shadow-md {getCardGradientClass(
+	class="flex h-full flex-col overflow-hidden rounded-lg shadow-md {getCardGradientClass(
 		card.base_health
 	)}"
 	draggable="true"

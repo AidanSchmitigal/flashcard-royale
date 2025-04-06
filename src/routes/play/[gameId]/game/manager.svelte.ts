@@ -214,6 +214,8 @@ export class BattleManager {
 		// Save the updated game state
 		await this.pushGameToFirestore();
 	}
+
+	public async processTurn(userInput: string) {}
 }
 
 // processTurn(correct: boolean): {
