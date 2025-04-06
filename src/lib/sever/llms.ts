@@ -1,6 +1,5 @@
 import type { FlashCard } from "$lib/client/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import 'dotenv/config'
 import { GEMINI_API_KEY } from '$env/static/private';
 
 // Function to calculate base damage
@@ -33,7 +32,7 @@ async function callGemini(prompt: string): Promise<string | null> {
 		return text || null;
 	} catch (error: any) {
 		console.error("Error calling Gemini API:", error);
-		return GEMINI_API_KEY;
+		return error;
 	}
 }
 
