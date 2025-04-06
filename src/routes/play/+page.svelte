@@ -49,12 +49,11 @@
                     fetchRecommendedDecks(db),
                     fetchUserDecks(db, userId)
                 ]);
+                loading = false;
             } else {
-                // If not logged in, just fetch recommended decks
-                await fetchRecommendedDecks(db);
-                userId = null;
+                // Redirect to login if not authenticated
+                window.location.href = '/account/login?redirect=/play';
             }
-            loading = false;
         });
     });
 
