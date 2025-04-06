@@ -12,8 +12,8 @@ interface LLMResponse {
     isCorrect: boolean;
 }
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}'; // Replace with the actual Gemini LLM API URL
-const GEMINI_API_KEY = 'AIzaSyCIgomPMh9mI1CxfknDweyLykZM8db_6vQ'; // Replace with your actual API key
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=YOUR_API_KEY`; // Replace with the actual Gemini LLM API URL
+const GEMINI_API_KEY = 'AIzaSyCIgomPMh9mI1CxfknDweyLykZM8db_6vQ'; 
 
 /**
  * Evaluates the user's answer against the card's answer using Gemini's LLM.

@@ -33,9 +33,9 @@
 			return;
 		}
 
-		console.log(await getDifficultyFromGemini("What does a sigma greek letter look like"))
-		return;
-
+		const difficulty = await getDifficultyFromGemini("What does a sigma greek letter look like");
+		console.log("Gemini difficulty:", difficulty);
+		
 		isProcessing = true;
 		error = '';
 

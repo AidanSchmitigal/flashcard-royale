@@ -11,35 +11,37 @@ function calculateBaseDamage(): number {
 
 // Function to get difficulty from Gemini
 export async function getDifficultyFromGemini(question: string): Promise<number> {
-    try {
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-            {
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: `Rank the difficulty of this question on a scale from 1 (easy) to 10 (hard): "${question}"`
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }
-        );
+	try {
+		const response = await axios.post(
+			`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+			{
+				contents: [
+					{
+						role: "user",
+						parts: [
+							{
+								text: `Rank the difficulty of this question on a scale from 1 (easy) to 10 (hard): "${question}"`
+							}
+						]
+					}
+				]
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+				}
+			}
+		);
 
-        const text = response.data.candidates?.[0]?.content?.parts?.[0]?.text || '1';
-        const parsed = parseInt(text.match(/\d+/)?.[0] || '1');
-        return Math.min(Math.max(parsed, 1), 10); // Ensure it's between 1–10
-    } catch (err) {
-        console.error('Error fetching difficulty from Gemini:', err);
-        return 1; // Fallback difficulty
-    }
+		const text = response.data.candidates?.[0]?.content?.parts?.[0]?.text || '1';
+		const parsed = parseInt(text.match(/\d+/)?.[0] || '1');
+		return Math.min(Math.max(parsed, 1), 10);
+	} catch (err) {
+		console.error('Error fetching difficulty from Gemini:', err);
+		return 1;
+	}
 }
+
 
 // Function to process a full deck of flashcards
 export async function processFlashcards(inputJson: QuizCard[]): Promise<Card[]> {
