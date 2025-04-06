@@ -12,6 +12,7 @@ export class BattleManager {
 		this.playerQueue = [...playerCards];
 		this.enemyQueue = [...enemyCards];
 		this.enemyFuture = [...enemyFuture];
+		this.playerHistory = [];
 		this.correctlyAnsweredCardIds = new Set();
 	}
 
