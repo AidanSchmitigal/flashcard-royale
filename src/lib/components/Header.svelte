@@ -68,8 +68,14 @@
 		{:else}
 			<div class="flex items-center gap-4">
 				{#if $displayName}
-				<p class="text-blue-900 font-semibold">Signed in as: {$displayName}</p>
+				<a
+					href="/profileDisplay"
+					class="rounded bg-blue-100 px-4 py-2 text-blue-900 font-semibold hover:bg-blue-200 transition-colors">
+					{$displayName}
+				</a>
 				{/if}
+			
+			
 				<button
 					on:click={handleSignOut}
 					class="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
