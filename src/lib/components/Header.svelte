@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { auth } from '$lib/client/firebase';
 	import logoSmall from '$lib/images/logo-small.png';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
