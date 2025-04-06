@@ -16,6 +16,8 @@
 			return 'bg-gradient-to-br from-gray-100 to-slate-200'; // Gray gradient for 5-15
 		}
 	}
+
+	const uuidAsNumber = Number(BigInt('0x' + card.id.replace(/-/g, ''))) % 360;
 </script>
 
 <div
@@ -24,14 +26,10 @@
 		card.base_health
 	)}"
 	draggable="true"
+	style="filter: hue-rotate({uuidAsNumber}deg)"
 >
 	<div class="flex flex-1 flex-col p-3">
-		
-		<img
-			src={logoSmall}
-			alt="Card"
-			class="pointer-events-none h-15 w-auto object-contain"
-		/>
+		<img src={logoSmall} alt="Card" class="pointer-events-none h-15 w-auto object-contain" />
 		{#if battleManager.appliedPowerUps[card.id] && battleManager.appliedPowerUps[card.id].length > 0}
 			<div class="mt-2 flex w-full justify-center gap-2">
 				{#each battleManager.appliedPowerUps[card.id] as powerUp}

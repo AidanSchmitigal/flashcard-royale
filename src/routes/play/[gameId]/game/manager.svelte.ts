@@ -1,18 +1,7 @@
 // src/lib/battle/BattleManager.ts
 import { docs } from '$lib/client/firebase';
 import { getDoc, updateDoc } from '@firebase/firestore';
-import {
-	type Card,
-	type Deck,
-	type Game,
-	type Hand,
-	type PowerUp,
-	GameOutcome,
-	GameState
-} from './index';
-import { writable } from 'svelte/store';
-import { Tween } from 'svelte/motion';
-import { sineOut } from 'svelte/easing';
+import { type Card, type Game, type PowerUp, GameOutcome, GameState } from './index';
 import { validateAnswer } from './validation';
 
 export class BattleManager {
@@ -246,7 +235,7 @@ export class BattleManager {
 		}
 	}
 
-	attack(valid: boolean, robotValid: boolean): Promise<void> {
+	async attack(valid: boolean, robotValid: boolean) {
 		console.log(valid, robotValid);
 		this.attacking = true;
 
@@ -259,8 +248,8 @@ export class BattleManager {
 		const newTargetHealth = target.base_health - (valid ? attacker.base_dmg : 0);
 
 		// Update the cards in the arrays with new health values
-		this.playerHand[0] = { ...attacker, base_health: newAttackerHealth };
-		this.enemyHand[0] = { ...target, base_health: newTargetHealth };
+		attacker.base_health = newAttackerHealth;
+		target.base_health = newTargetHealth;
 
 		// Log attack results
 		console.log(
@@ -271,45 +260,44 @@ export class BattleManager {
 		);
 
 		// Return a promise that resolves when the animation is complete
-		return new Promise((resolve) => {
+		await new Promise((resolve) =>
 			setTimeout(() => {
-				this.attacking = false;
+				resolve(true);
+			}, 1000)
+		);
 
-				if (newAttackerHealth <= 0) {
-					this.playerHand.shift();
-					this.player1Ready = false;
-				}
+		this.attacking = false;
 
-				if (newTargetHealth <= 0) {
-					this.enemyHand.shift();
-				}
+		if (newAttackerHealth <= 0) {
+			this.playerHand.shift();
+			this.player1Ready = false;
+		}
 
-				// if player card is wrong and survived, move it to the back of the queue
-				if (newAttackerHealth > 0 && !valid) {
-					const currentCard = this.playerHand.shift();
-					if (currentCard) this.playerHand.push(currentCard);
-					this.player1Ready = false;
-				}
+		if (newTargetHealth <= 0) {
+			this.enemyHand.shift();
+		}
 
-				// check if player lost
-				if (this.playerHand.length === 0) {
-					this.gameOutcome = GameOutcome.Loss;
-				}
-				if (this.enemyHand.length === 0) {
-					this.gameOutcome = GameOutcome.Win;
-				}
-				if (this.playerHand.length === 0 && this.enemyHand.length === 0) {
-					this.gameOutcome = GameOutcome.Draw;
-				}
-				// check if game is over
-				if (this.gameOutcome && this.game != null) {
-					this.player1Ready = false;
-					this.game.gameState = GameState.EndScreen;
-				}
+		// if player card is wrong and survived, move it to the back of the queue
+		if (newAttackerHealth > 0 && !valid) {
+			const currentCard = this.playerHand.shift();
+			if (currentCard) this.playerHand.push(currentCard);
+			this.player1Ready = false;
+		}
 
-				resolve();
-			}, 1000);
-		});
+		if (this.playerHand.length === 0 && this.enemyHand.length === 0) {
+			this.gameOutcome = GameOutcome.Draw;
+		}
+		if (this.playerHand.length === 0) {
+			this.gameOutcome = GameOutcome.Loss;
+		}
+		if (this.enemyHand.length === 0) {
+			this.gameOutcome = GameOutcome.Win;
+		}
+		// check if game is over
+		if (this.gameOutcome != null && this.game != null) {
+			this.player1Ready = false;
+			this.game.gameState = GameState.EndScreen;
+		}
 	}
 }
 // processTurn(correct: boolean): {
