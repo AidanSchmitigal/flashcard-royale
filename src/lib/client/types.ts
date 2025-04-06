@@ -1,7 +1,5 @@
 type BaseCollection = {
 	id: string;
-	createdAt: string;
-	updatedAt: string;
 };
 
 type User = BaseCollection & {
@@ -17,6 +15,7 @@ type Game = BaseCollection & {
 };
 
 type Deck = BaseCollection & {
+	ownersIds: string[];
 	cards: string[];
 };
 
