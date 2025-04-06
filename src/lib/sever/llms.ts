@@ -1,3 +1,4 @@
+import type { FlashCard } from "$lib/client/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import 'dotenv/config'
 
@@ -12,6 +13,19 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
+// AI
+function removePartsBeforeAndAfterBrackets(input: string): string {
+    const startIndex = input.indexOf('[');
+    const endIndex = input.indexOf(']');
+
+    if (startIndex !== -1 && endIndex !== -1 && startIndex < endIndex) {
+        return input.substring(startIndex, endIndex + 1);
+    }
+
+    // If there's no valid substring between brackets, return an empty string or handle as needed
+    return '';
+}
+
 async function callGemini(prompt: string): Promise<string | null> {
 	try {
 		const result = await model.generateContent(prompt);
@@ -25,15 +39,23 @@ async function callGemini(prompt: string): Promise<string | null> {
 }
 
 // Function to get difficulty from Gemini
-export async function getDifficultyFromGemini(question: string): Promise<number> {
-	try {
-		const text = await callGemini(`Rank the difficulty of this question on a scale from 1 (easy) to 10 (hard): "${question}"`)
+export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any | null> {
+	const questionsAndAnswers = cards.map((card) => { return { question: card.term, answer: card.definition } })
+	const promptData = JSON.stringify(questionsAndAnswers)
+	console.log(promptData)
 
-		const parsed = parseInt(text!.match(/\d+/)?.[0] || '1');
-		return Math.min(Math.max(parsed, 1), 10);
+	try {
+		const text = await callGemini(
+			`For each of these flash cards give them an attack and defense between 1 and 10 based on the difficulties of the cards in order.
+			 Make the attack and defense different add some randomness
+			 Output using the JSON schema [{reason: string, attack: int, defense: int}, ...]
+			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
+			 Flashccards: ${promptData}`)
+
+		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
-		return 1;
+		return cards.map((card) => Math.floor(Math.random() * 11));
 	}
 }
 
@@ -50,23 +72,19 @@ export async function getCorrect(question: string, answer: string, user: string)
 }
 
 // Function to process a full deck of flashcards
-export async function processFlashcards(inputJson: QuizCard[]): Promise<Card[]> {
-    const cards: Card[] = [];
+export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]> {
+	try {
+		let difficulties = await getDifficultyFromGemini(cards);
 
-    for (const card of inputJson) {
-        const baseHealth = await getDifficultyFromGemini(card.question);
-        const baseDamage = calculateBaseDamage();
+		for (let i = 0; i < cards.length; i++) {
+			cards[i].base_dmg = Math.min(Math.max(Math.round(difficulties[i].attack), 0), 10)
+			cards[i].base_health = Math.min(Math.max(Math.round(difficulties[i].defense), 0), 10)
+		}
 
-        const cardObject: Card = {
-            question: card.question,
-            answer: card.answer,
-            baseHealth: baseHealth,
-            baseDamage: baseDamage,
-        };
-
-        cards.push(cardObject);
-    }
-
-    return cards;
+		return cards;
+	} catch (err) {
+		console.error('Failed to use cards:', err);
+		return cards;
+	}
 }
 

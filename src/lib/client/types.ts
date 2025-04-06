@@ -49,3 +49,11 @@ export type Game = {
 	xpEarned: string;
 	achievements: string;
 };
+
+export type FlashCard = {
+	term: string;
+	definition: string;
+	id: string;
+	base_health: number;
+	base_dmg: number;
+};

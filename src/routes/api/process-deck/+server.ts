@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { processFlashcards } from '$lib/sever/statsLLM';
 import { v4 as uuidv4 } from 'uuid';
+import { processFlashcards } from '$lib/sever/llms';
 
 export const POST: RequestHandler = async ({ request }) => {
     try {

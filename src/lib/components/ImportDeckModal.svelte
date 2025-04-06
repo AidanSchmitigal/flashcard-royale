@@ -3,6 +3,7 @@
 	import { auth } from '$lib/client/firebase';
 	import { createDeck } from '$lib/client/game/data';
 	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
+	import type { FlashCard } from '$lib/client/types';
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { v4 as uuidv4 } from 'uuid';
@@ -16,15 +17,6 @@
 	let isProcessing = false;
 	let processingLLM = false;
 	let error = '';
-
-	// Define proper types for cards - matching the required format
-	type FlashCard = {
-		term: string;
-		definition: string;
-		id: string;
-		base_health: number;
-		base_dmg: number;
-	};
 
 	const dispatch = createEventDispatcher();
 
@@ -64,14 +56,14 @@
 	async function processCardsWithLLM(cards: FlashCard[]) {
 		try {
 			processingLLM = true;
-			const cardsToProcess = cards.map(({ term, definition }) => ({ term, definition }));
-			
+
+			console.log(cards)
 			const response = await fetch('/api/process-deck', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ cards: cardsToProcess })
+				body: JSON.stringify({ cards: cards })
 			});
 			
 			const data = await response.json();
