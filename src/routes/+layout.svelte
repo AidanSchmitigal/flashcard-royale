@@ -2,14 +2,15 @@
 	import '../app.css';
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import { page } from '$app/stores';
+
+	const { children } = $$props;
 </script>
 
 <div class="app-container">
 	<Header />
 
 	<main>
-		<slot />
+		{@render children()}
 	</main>
 
 	<Footer />
