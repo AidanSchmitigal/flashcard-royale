@@ -1,15 +1,13 @@
 import type { FlashCard } from "$lib/client/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import 'dotenv/config'
+import { GEMINI_API_KEY } from '$env/static/private';
 
 // Function to calculate base damage
 function calculateBaseDamage(): number {
     return Math.floor(Math.random() * 10) + 1; // Random number between 1 and 10 for base_dmg
 }
 
-const API_KEY = process.env.GEMINI_API_KEY!;
-
-const genAI = new GoogleGenerativeAI(API_KEY);
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
@@ -34,7 +32,7 @@ async function callGemini(prompt: string): Promise<string | null> {
 		return text || null;
 	} catch (error: any) {
 		console.error("Error calling Gemini API:", error);
-		return null;
+		return error;
 	}
 }
 
@@ -49,12 +47,12 @@ export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any |
 			 Make the attack and defense different add some randomness. MAKE THEM VERY DIFFERENT IN SOME CASES
 			 Output using the JSON schema [{reason: string, attack: int, defense: int}, ...]
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
-			 Flashccards: ${promptData}`)
+			 Flashcards: ${promptData}`)
 
 		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
-		return cards.map((card) => Math.floor(Math.random() * 11));
+		return cards.map((card) => { return { attack: Math.floor(Math.random() * 11), defense: Math.floor(Math.random() * 11) } });
 	}
 }
 

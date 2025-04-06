@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
         // Process the cards through the LLM
         const processedCardStats = await processFlashcards(cards);
-        
+
         // Ensure each card has all the required fields
         const processedCards = processedCardStats.map(card => {
             return {

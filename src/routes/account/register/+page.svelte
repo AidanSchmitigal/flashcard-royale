@@ -39,6 +39,10 @@
 				submitButton.disabled = false;
 			});
 	}
+
+	function goBack() {
+		history.back();
+	}
 </script>
 
 <svelte:head>
@@ -47,9 +51,10 @@
 
 <div class="pattern-bathroom-floor-amber-100 flex h-screen items-center justify-center">
 	<div class="w-full max-w-lg rounded-lg bg-white p-8 shadow-lg">
-		<a href={`/${page.url.searchParams.get('redirect') ?? ''}`} class="group text-amber-500">
-			<span class="inline-block transition-transform group-hover:-translate-x-1">←</span>&nbsp;Back
-		</a>
+		<button onclick={goBack} class="group text-amber-500">
+			<span class="inline-block transition-transform group-hover:-translate-x-1">←</span
+			>&nbsp;Back
+		</button>
 		<h1 class="mb-4 text-3xl font-bold">Register</h1>
 		{#if loginError}
 			<p class="mb-4 text-red-500">{loginError}</p>
@@ -81,7 +86,7 @@
 				class="mb-4 w-full rounded-lg border px-3 py-2 lowercase"
 			/>
 			<label for="password" class="mb-2 block"
-				>Password <span class="text-sm text-gray-400">(minimum 5 characters)</span></label
+				>Password <span class="text-sm text-gray-400">(minimum 6 characters)</span></label
 			>
 			<input
 				bind:value={password}

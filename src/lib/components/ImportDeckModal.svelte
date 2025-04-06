@@ -6,6 +6,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { v4 as uuidv4 } from 'uuid';
+	import type { FlashCard } from '$lib/client/types';
 
 	export let onClose: () => void;
 
@@ -55,10 +56,10 @@
 	async function processCardsWithLLM(cards: FlashCard[]) {
 		try {
 			processingLLM = true;
-
-			console.log(cards)
+			
 			const response = await fetch('/api/process-deck', {
 				method: 'POST',
+				redirect: 'follow',
 				headers: {
 					'Content-Type': 'application/json',
 				},

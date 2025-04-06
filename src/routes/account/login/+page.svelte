@@ -109,7 +109,7 @@
 				>
 			</p>
 			<p class="text-right text-sm">
-				<a href="/account/PasswordReset" class="text-blue-600 hover:underline">Forgot Password?</a>
+				<a href="/account/reset" class="text-blue-600 hover:underline">Forgot Password?</a>
 			</p>
 		{/if}
 	</div>

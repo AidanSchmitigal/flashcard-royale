@@ -7,8 +7,12 @@
     let email = '';
     let message = '';
     let error = '';
+    let clicked = false;
+    let working = false;
   
     async function handleReset() {
+      clicked = true;
+      working = true;
       console.log('Attempting reset for:', email); // DEBUG
 
       try {
@@ -21,6 +25,8 @@
         error = err.message;
         message = '';
       }
+
+      working = false;
     }
   </script>
   
@@ -35,9 +41,16 @@
       />
       <button
         on:click={handleReset}
-        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        disabled={working}
+        class="w-full py-2 rounded"
+        class:bg-blue-600={!clicked}
+        class:bg-gray-400={clicked}
       >
-        Send Reset Email
+        {#if working}
+          Working...
+        {:else}
+          Send Reset Email
+        {/if}
       </button>
   
       {#if message}
