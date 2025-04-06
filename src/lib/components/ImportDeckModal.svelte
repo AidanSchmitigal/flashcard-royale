@@ -103,41 +103,34 @@
 				>
 					Quizlet Link
 				</button>
-				<button
-					class={`px-4 py-2 font-medium ${importMethod === 'csv' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-					on:click={() => (importMethod = 'csv')}
-				>
-					CSV/Text
-				</button>
 			</div>
 
-			{#if importMethod === 'quizlet'}
-				<div class="space-y-4">
-					<label class="block">
-						<span class="text-sm font-medium text-gray-700">Quizlet URL</span>
-						<input
-							type="text"
-							bind:value={quizletLink}
-							placeholder="https://quizlet.com/..."
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-						/>
-						<button
-							on:click={openQuizletUrl}
-							class="flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
-							disabled={isProcessing}
-						>Open Data</button>
-						<span class="text-sm font-medium text-gray-700">Quizlet Data</span>
-						<input
-							type="text"
-							bind:value={quizletData}
-							placeholder={"{\"response..."}
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-						/>
-					</label>
-					<p class="text-sm text-gray-500">
-						Paste the URL of any public Quizlet flashcard set to import it.
-					</p>
-				</div>
+			<div class="space-y-4">
+				<label class="block">
+					<span class="text-sm font-medium text-gray-700">Quizlet URL</span>
+					<input
+						type="text"
+						bind:value={quizletLink}
+						placeholder="https://quizlet.com/..."
+						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+					/>
+					<button
+						on:click={openQuizletUrl}
+						class="flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
+						disabled={isProcessing}
+					>Open Data</button>
+					<span class="text-sm font-medium text-gray-700">Quizlet Data</span>
+					<input
+						type="text"
+						bind:value={quizletData}
+						placeholder={"{\"response..."}
+						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+					/>
+				</label>
+				<p class="text-sm text-gray-500">
+					Paste the URL of any public Quizlet flashcard set to import it.
+				</p>
+			</div>
 
 			{#if error}
 				<div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
