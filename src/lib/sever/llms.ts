@@ -1,12 +1,11 @@
 import type { FlashCard } from "$lib/client/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_API_KEY } from '$env/static/private';
 
 // Function to calculate base damage
 function calculateBaseDamage(): number {
     return Math.floor(Math.random() * 10) + 1; // Random number between 1 and 10 for base_dmg
 }
-
-const GEMINI_API_KEY = 'HI OSUSEC'
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
@@ -50,6 +49,8 @@ export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any |
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
 			 Flashcards: ${promptData}`)
 
+		return text;
+
 		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
@@ -73,6 +74,7 @@ export async function getCorrect(question: string, answer: string, user: string)
 export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]> {
 	try {
 		let difficulties = await getDifficultyFromGemini(cards);
+		return difficulties;
 
 		for (let i = 0; i < cards.length; i++) {
 			let random_attack = Math.random() * 4 - 2;
