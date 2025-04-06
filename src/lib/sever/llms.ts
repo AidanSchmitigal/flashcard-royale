@@ -34,7 +34,7 @@ async function callGemini(prompt: string): Promise<string | null> {
 		return text || null;
 	} catch (error: any) {
 		console.error("Error calling Gemini API:", error);
-		return API_KEY;
+		return process.env;
 	}
 }
 
