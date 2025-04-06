@@ -1,5 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, getAuth, updateProfile } from 'firebase/auth';
+import {
+	browserLocalPersistence,
+	createUserWithEmailAndPassword,
+	getAuth,
+	setPersistence,
+	signInWithEmailAndPassword,
+	updateProfile
+} from 'firebase/auth';
 import {
 	collection,
 	doc,
@@ -37,6 +44,8 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const user = writable<User | null>(null);
+
+setPersistence(auth, browserLocalPersistence);
 
 function typedCollection<T>(firestore: Firestore, path: string): CollectionReference<T> {
 	return collection(firestore, path).withConverter(converter<T>());
@@ -94,7 +103,6 @@ export async function createNewUser(email: string, password: string, name: strin
 
 		await setDoc(doc(db, 'users', currentUser.user.uid), {
 			avatarColor: 'blue',
-			username: name,
 			badges: [],
 			stats: {
 				xp: 0,

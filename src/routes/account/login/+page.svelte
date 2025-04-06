@@ -1,28 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { signInWithEmailAndPassword } from 'firebase/auth';
-	import type { ActionData } from './$types';
-	import { auth } from '$lib/client/firebase';
-	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
+	import { auth, user } from '$lib/client/firebase';
 
-	export let form: ActionData | null = null;
-
-	let email = form?.email ?? '';
-	let password = '';
+	let email = $state('');
+	let password = $state('');
 	let submitButton: HTMLButtonElement;
-	let loginError: string = '';
+	let loginError: string = $state('');
 
 	const redirect = page.url.searchParams.get('redirect');
-
-	const user = writable<null | object>(null);
-
-	onMount(() => {
-		const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-			user.set(currentUser);
-		});
-		return () => unsubscribe();
-	});
 
 	function login() {
 		loginError = '';
@@ -70,9 +56,6 @@
 				<p class="mb-4 text-red-500">{loginError}</p>
 			{/if}
 			<form data-form-type="login">
-				{#if form}
-					<p class="mb-4 text-red-500">{form.message}</p>
-				{/if}
 				<label for="email" class="mb-2 block">Email</label>
 				<input
 					bind:value={email}
@@ -91,7 +74,7 @@
 				/>
 				<button
 					bind:this={submitButton}
-					on:click={() => login()}
+					onclick={() => login()}
 					class="group flex items-center rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700 disabled:bg-gray-400"
 				>
 					<svg
