@@ -1,25 +1,20 @@
-import { getDatabase, ref, get, set, update, query, orderByChild, limitToLast } from "firebase/database";
+import { ref, get, set, update, query, orderByChild, limitToLast } from "firebase/database";
+import { rtdb } from './firebase'; 
 
-// Initialize Firebase Database
-const db = getDatabase();
+export async function getTopScoringUsers(limit: number): Promise<{ uid: string; name: string; score: number }[]> {
+	const leaderboardRef = query(ref(rtdb, 'leaderboard'), orderByChild('score'), limitToLast(limit));
+	const snapshot = await get(leaderboardRef);
 
-// Function to get top scoring usernames
-export async function getTopScoringUsers(limit: number): Promise<{ username: string; score: number }[]> {
-    const leaderboardRef = query(ref(db, 'leaderboard'), orderByChild('score'), limitToLast(limit));
-    const snapshot = await get(leaderboardRef);
+	if (!snapshot.exists()) return [];
 
-    if (!snapshot.exists()) {
-        return [];
-    }
+	const data = snapshot.val();
+	const users = Object.entries(data).map(([uid, value]: [string, any]) => ({
+		uid,
+		name: value.name ?? 'Unknown',
+		score: value.score ?? 0
+	}));
 
-    const data = snapshot.val();
-    const users = Object.entries(data).map(([key, value]: [string, any]) => ({
-        username: key,
-        score: value.score,
-    }));
-
-    // Sort in descending order since Firebase returns ascending order
-    return users.sort((a, b) => b.score - a.score);
+	return users.sort((a, b) => b.score - a.score);
 }
 
 export async function getUserRank(username: string): Promise<{ rank: number, score: number, gamesWon: number } | null> {
