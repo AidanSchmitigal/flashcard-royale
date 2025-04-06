@@ -47,12 +47,13 @@ export function get_cards(json: string): QuizCard[] {
 
     const cards: QuizCard[] = [];
 
-    for (const item in data.responses[0].models.studiableItem) {
-        const question = item[0]
-        const answer = item[1]
+    const cardJson: any[] = data.responses[0].models.studiableItem
+    cardJson.forEach((item) => {
+        const question = item.cardSides[0].media[0].plainText
+        const answer = item.cardSides[0].media[0].plainText
 
         cards.push({ question: question, answer: answer })
-    }
+    })
 
     return cards
 }

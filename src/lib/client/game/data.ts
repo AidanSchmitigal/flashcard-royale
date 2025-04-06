@@ -19,3 +19,13 @@ export async function getDeck(ownerId: string): Promise<Deck[] | null> {
 
 export async function getGame(ownerId: string) {
 }
+
+// Should move file
+export async function getCorrect(question: string, answer: string, user: string): Promise<boolean> {
+    const resp = await fetch('/api/process_cards', {
+        method: "POST",
+        body: JSON.stringify({ question, answer, user }),
+    })
+
+    return (await resp.json()).is_correct
+}
