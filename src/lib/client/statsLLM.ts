@@ -10,7 +10,7 @@ function calculateBaseDamage(): number {
 }
 
 // Function to get difficulty from Gemini
-async function getDifficultyFromGemini(question: string): Promise<number> {
+export async function getDifficultyFromGemini(question: string): Promise<number> {
     try {
         const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
@@ -48,7 +48,6 @@ export async function processFlashcards(inputJson: QuizCard[]): Promise<Card[]> 
     for (const card of inputJson) {
         const baseHealth = await getDifficultyFromGemini(card.question);
         const baseDamage = calculateBaseDamage();
-        const cardId = uuidv4();
 
         const cardObject: Card = {
             question: card.question,
