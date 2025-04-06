@@ -30,7 +30,11 @@
 
 		signInWithEmailAndPassword(auth, email, password)
 			.then(() => {
-				window.location.assign('/');
+				if (redirect) {
+					window.location.assign(redirect);
+				} else {
+					window.location.assign('/');
+				}
 			})
 			.catch((error) => {
 				const errorCode = error.code;
