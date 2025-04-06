@@ -49,9 +49,9 @@ export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any |
 			 Make the attack and defense different add some randomness. MAKE THEM VERY DIFFERENT IN SOME CASES
 			 Output using the JSON schema [{reason: string, attack: int, defense: int}, ...]
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
-			 Flashccards: ${promptData}`)
+			 Flashcards: ${promptData}`)
 
-		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
+		return text;//JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
 		return cards.map((card) => Math.floor(Math.random() * 11));
