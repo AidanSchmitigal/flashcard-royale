@@ -10,6 +10,8 @@
         term: string;
         definition: string;
         id: number;
+        base_health?: number;
+        base_dmg?: number;
     };
     
     // Deck information
@@ -28,6 +30,7 @@
     let isSubmitting = false;
     let submitted = false;
     let error: string | null = null;
+    let processingLLM = false;
     import type { User } from 'firebase/auth';
     
     let user = writable<User | null>(null);
@@ -84,13 +87,24 @@
             isSubmitting = true;
             error = null;
             
-            // Prepare deck object
+            // First step: Process cards through the LLM API
+            processingLLM = true;
+            const processedCards = await processCardsWithLLM(cards);
+            processingLLM = false;
+            
+            if (!processedCards) {
+                error = "Failed to process cards. Please try again.";
+                isSubmitting = false;
+                return;
+            }
+            
+            // Prepare deck object with processed cards
             const deckData = {
                 title: deckTitle,
                 createdBy: $user.uid,
                 createdAt: serverTimestamp(),
-                cardCount: cards.length,
-                cards: cards.map(({ term, definition }) => ({ term, definition }))
+                cardCount: processedCards.length,
+                cards: processedCards
             };
             
             // Save to Firestore
@@ -109,6 +123,32 @@
             error = "Failed to save deck. Please try again.";
         } finally {
             isSubmitting = false;
+        }
+    }
+    
+    // Process cards with the LLM API
+    async function processCardsWithLLM(cards: FlashCard[]) {
+        try {
+            const cardsToProcess = cards.map(({ term, definition }) => ({ term, definition }));
+            
+            const response = await fetch('/api/process-deck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cards: cardsToProcess })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to process cards');
+            }
+            
+            return data.processedCards;
+        } catch (err) {
+            console.error('Error processing cards with LLM:', err);
+            return null;
         }
     }
 </script>
@@ -228,11 +268,19 @@
             >
                 {#if isSubmitting}
                     <span class="flex items-center">
-                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                        </svg>
-                        Saving...
+                        {#if processingLLM}
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Processing with AI...
+                        {:else}
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Saving...
+                        {/if}
                     </span>
                 {:else}
                     Save Deck
