@@ -31,13 +31,13 @@ export class BattleManager {
 		return this.correctlyAnsweredCardIds.has(cardId);
 	}
 
-	processTurn(correct: boolean): { log: string; done: boolean; targetId: number | null; needNewPrompt: boolean; playerTookDamage: boolean; playerDamageAmount: number } {
+	processTurn(correct: boolean): { log: string; done: boolean; needNewPrompt: boolean; playerTookDamage: boolean; playerDamageAmount: number } {
 		const attacker = this.getCurrentAttacker();
-		const targetId = this.getTargetId();
 		let log = "";
 		let needNewPrompt = false;
 		let playerTookDamage = false;
 		let playerDamageAmount = 0;
+		const target = this.getCurrentDefender();
 		
 		// Process player attack
 		if (correct) {
@@ -45,48 +45,42 @@ export class BattleManager {
 			this.correctlyAnsweredCardIds.add(attacker.id);
 			
 			// Apply damage to target
-			const target = this.getCurrentDefender();
 			const damage = attacker.damage;
 			target.hp -= damage;
 			log = `${attacker.term} deals ${damage} damage to ${target.term}!`;
-			
-			// Check if target is defeated
-			if (target.hp <= 0) {
-				this.enemyQueue.shift(); // Remove defeated card
-				log += ` ${target.term} is defeated!`;
-			}
 		} else {
 			// When incorrect, the current card takes damage first
-			const selfDamage = 10; // Self-damage for wrong answers
-			attacker.hp -= selfDamage;
-			log = `${attacker.term} missed the attack and took ${selfDamage} damage!`;
-			playerTookDamage = true;
-			playerDamageAmount = selfDamage;
+			log = `${attacker.term} missed the attack`;
+		}
+
+		// Process enemy attack: 80% chance to hit
+		if (Math.random() < 0.8) {
+			let damage = target.damage;
+			attacker.hp -= damage;
+			log = `${target.term} attacks ${attacker.term} for ${damage} damage!`;
 			
-			// Check if card defeated itself with the wrong answer
+			// Check if player card is defeated
 			if (attacker.hp <= 0) {
 				this.playerQueue.shift(); // Remove defeated player card
-				log += ` ${attacker.term} is defeated!`;
 				this.correctlyAnsweredCardIds.delete(attacker.id); // Remove from correctly answered set
-				needNewPrompt = true;
-			} else {
-				// Move the card to the back only if it survived
-				const currentCard = this.playerQueue.shift();
-				if (currentCard) this.playerQueue.push(currentCard);
-				needNewPrompt = true;
+				log += ` ${attacker.term} is defeated!`;
 			}
+		} else {
+			log = `${target.term} tried to attack but missed!`;
 		}
-		
-		// Process enemy attack - only if the player's card wasn't already defeated
-		if (this.enemyQueue.length > 0 && this.playerQueue.length > 0 && attacker.hp > 0) {
-			const enemyAttackResult = this.processEnemyAttack();
-			log += " " + enemyAttackResult.log;
-			
-			// Only set these if player wasn't already damaged from a wrong answer
-			if (!playerTookDamage && enemyAttackResult.hit) {
-				playerTookDamage = true;
-				playerDamageAmount = enemyAttackResult.damage;
-			}
+
+		// Move player card to the back of the queue if wrong answer and survived
+		if (attacker.hp > 0 && !correct) {
+			// Move the card to the back only if it survived
+			const currentCard = this.playerQueue.shift();
+			if (currentCard) this.playerQueue.push(currentCard);
+			needNewPrompt = true;
+		}
+
+		// Check if target is defeated
+		if (target.hp <= 0) {
+			this.enemyQueue.shift(); // Remove defeated card
+			log += ` ${target.term} is defeated!`;
 		}
 		
 		// Check if active player card is defeated from enemy attack
@@ -107,7 +101,7 @@ export class BattleManager {
 			needNewPrompt = true;
 		}
 		
-		return { log, done, targetId, needNewPrompt, playerTookDamage, playerDamageAmount };
+		return { log, done, needNewPrompt, playerTookDamage, playerDamageAmount };
 	}
 
 	processEnemyAttack(): { log: string; hit: boolean; damage: number } {
@@ -135,10 +129,5 @@ export class BattleManager {
 		}
 		
 		return { log, hit, damage };
-	}
-
-	getTargetId() {
-		const target = this.getCurrentDefender();
-		return target ? Number(target.id) : null;
 	}
 }

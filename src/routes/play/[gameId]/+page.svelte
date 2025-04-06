@@ -72,7 +72,7 @@
         
         // Mark the target card for damage animation
         if (correct) {
-            cardTakingDamage = result.targetId ? String(result.targetId) : '';
+            cardTakingDamage = '';
         }
         
         // Mark player card for damage animation if it took damage

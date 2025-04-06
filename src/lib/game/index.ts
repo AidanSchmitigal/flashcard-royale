@@ -11,7 +11,7 @@ export function createCardFromFlashcard(term: string, definition: string, health
 		id: crypto.randomUUID(),
 		term,
 		definition,
-		hp: 100,
-		damage: 30
+		hp: health,
+		damage: damage
 	};
 }
