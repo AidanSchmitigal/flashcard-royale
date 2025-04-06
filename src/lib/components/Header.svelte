@@ -3,6 +3,8 @@
 	import logoSmall from '$lib/images/logo-small.png';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
+	import { signOut } from 'firebase/auth';
+
 
 	const user = writable<null | object>(null); // store to track auth state
 
@@ -13,7 +15,18 @@
 
 		return () => unsubscribe(); // cleanup
 	});
+
+	function handleSignOut() {
+	signOut(auth)
+		.then(() => {
+			user.set(null);
+		})
+		.catch((error) => {
+			console.error('Error signing out:', error);
+		});
+}
 </script>
+
 
 
 <header
@@ -31,22 +44,29 @@
 
 	<div>
 		{#if $user == null}
-			<a
-				href="/account/login"
-				class="rounded bg-blue-900 px-4 py-2 text-white transition-colors hover:bg-blue-800"
-			>
-				Sign In
-			</a>
-			<a
-				href="/account/register"
-				class="rounded bg-blue-900 px-4 py-2 text-white transition-colors hover:bg-blue-800"
-			>
-				Register
-			</a>
+			<div class="flex items-center gap-4">
+				<a
+					href="/account/login"
+					class="rounded bg-blue-900 px-4 py-2 text-white transition-colors hover:bg-blue-800"
+				>
+					Sign In
+				</a>
+				<a
+					href="/account/register"
+					class="rounded bg-blue-900 px-4 py-2 text-white transition-colors hover:bg-blue-800"
+				>
+					Register
+				</a>
+			</div>
 		{:else}
-			<p class="rounded bg-blue-900 px-4 py-2 text-white transition-colors hover:bg-blue-800">
-				You are signed in
-			</p>
+			<div class="flex items-center gap-4">
+				<p class="text-blue-900 font-semibold">You are signed in</p>
+				<button
+					on:click={handleSignOut}
+					class="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+				>
+					Sign Out
+				</button>
+			</div>
 		{/if}
-	</div>	
 </header>
