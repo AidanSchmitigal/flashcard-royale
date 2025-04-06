@@ -9,12 +9,22 @@ export default {
 				wiggle: {
 					'0%, 100%': { transform: 'rotate(-15deg)' },
 					'50%': { transform: 'rotate(15deg)' }
+				},
+				'attack-left': {
+					'0%, 100%': { transform: 'rotate(-15deg) translateX(-100px)' },
+					'50%': { transform: 'rotate(15deg) translateX(100px)' }
+				},
+				'attack-right': {
+					'0%, 100%': { transform: 'rotate(15deg) translateX(100px)' },
+					'50%': { transform: 'rotate(-15deg) translateX(-100px)' }
 				}
 			},
 			animation: {
-				wiggle: 'wiggle 1s ease-in-out infinite'
-			},
-		},
+				wiggle: 'wiggle 1s ease-in-out infinite',
+				'attack-left': 'attack-left 1s ease-in-out infinite',
+				'attack-right': 'attack-right 1s ease-in-out infinite'
+			}
+		}
 	},
 	safelist: [
 		'bg-gradient-to-r',
@@ -30,5 +40,5 @@ export default {
 		'via-purple-600',
 		'to-pink-600'
 	],
-	plugins: [backgroundPatterns],
+	plugins: [backgroundPatterns]
 };

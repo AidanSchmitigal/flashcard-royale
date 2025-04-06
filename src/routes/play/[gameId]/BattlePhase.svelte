@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import type { Card } from './game/index';
-	import { fly, fade, slide } from 'svelte/transition';
+	import { fly, fade, slide, scale } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import type { BattleManager } from './game/manager.svelte';
 	import { float } from '$lib/client/transitions';
 	import GameCard from './GameCard.svelte';
+	import TimerBar from './TimerBar.svelte';
 
 	const { battleManager }: { battleManager: BattleManager } = $props();
 
 	let userInput = $state('');
-	function handleSubmit() {
+	function handleSubmit(e: SubmitEvent) {
+		console.log(userInput);
+		e.preventDefault();
 		battleManager.processTurn(userInput);
 	}
-	let showFeedback = false;
-	let isCorrect = false;
-	const logs: string[] = [];
 </script>
 
 <div
@@ -23,15 +22,16 @@
 	in:float={{ duration: 400, opacity: 100, x: '100vw' }}
 	out:float={{ duration: 400, opacity: 100, x: '-100vw', out: true }}
 >
-	<!-- Combined card section: player cards, VS, enemy cards all in one row -->
-	<div class="flex w-full items-center justify-center gap-8 overflow-x-auto p-4">
+	<div class="flex min-w-full items-center justify-center gap-8 overflow-x-hidden py-16">
 		<!-- Player cards -->
-		<div class="flex flex-row-reverse gap-1">
-			{#each battleManager.playerHand as card, i (`player-${i}-${card.id}`)}
+		<div class="flex w-full flex-row-reverse gap-1">
+			{#each battleManager.playerHand as card, i (card.id)}
 				<div
 					class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
 					class:border-blue-500={i === 0}
-					transition:fade
+					class:animate-attack-right={battleManager.attacking && i === 0}
+					out:scale
+					animate:flip={{ duration: 300 }}
 				>
 					<GameCard {card} {battleManager} />
 					{#if i === 0}
@@ -53,12 +53,14 @@
 		</div>
 
 		<!-- Enemy cards -->
-		<div class="flex gap-1">
-			{#each battleManager.enemyHand as card, i (`enemy-${i}-${card.id}`)}
+		<div class="flex w-full gap-1">
+			{#each battleManager.enemyHand as card, i (card.id)}
 				<div
 					class="relative h-40 w-28 cursor-grab rounded-lg border-2 border-solid p-1 transition-all duration-200 ease-in-out sm:h-48 sm:w-36"
 					class:border-red-500={i === 0}
-					transition:fade
+					class:animate-attack-left={battleManager.attacking && i === 0}
+					out:scale
+					animate:flip={{ duration: 300 }}
 				>
 					<GameCard {card} {battleManager} />
 					{#if i === 0}
@@ -84,12 +86,12 @@
 				alt="Card"
 				class="pointer-events-none absolute top-4 left-4 mb-2 h-10 w-auto object-contain"
 			/>
-			<p class="text-xl font-semibold">{battleManager.playerHand[0].term}</p>
+			<p class="text-xl font-semibold">{battleManager.playerHand[0].definition}</p>
 		</div>
 
 		<!-- Answer input card -->
-		<div class="flex flex-col gap-4">
-			<div
+		<form class="flex flex-col gap-4" onsubmit={handleSubmit}>
+			<for
 				class="relative flex h-48 w-96 flex-col overflow-hidden rounded-md bg-white p-3 shadow-lg"
 			>
 				<img
@@ -101,19 +103,16 @@
 					<input
 						placeholder="Write your answer here..."
 						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none"
-						disabled={showFeedback}
 						bind:value={userInput}
 					/>
 				</div>
-			</div>
+			</for>
 			<button
 				type="submit"
 				class="w-full cursor-pointer rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700"
-				disabled={showFeedback}
-				onclick={handleSubmit}
 			>
 				Attack!
 			</button>
-		</div>
+		</form>
 	</div>
 </div>

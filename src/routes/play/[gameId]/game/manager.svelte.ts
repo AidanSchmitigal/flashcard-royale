@@ -1,8 +1,19 @@
 // src/lib/battle/BattleManager.ts
 import { docs } from '$lib/client/firebase';
 import { getDoc, updateDoc } from '@firebase/firestore';
-import { type Card, type Deck, type Game, type Hand, type PowerUp, GameState } from './index';
+import {
+	type Card,
+	type Deck,
+	type Game,
+	type Hand,
+	type PowerUp,
+	GameOutcome,
+	GameState
+} from './index';
 import { writable } from 'svelte/store';
+import { Tween } from 'svelte/motion';
+import { sineOut } from 'svelte/easing';
+import { validateAnswer } from './validation';
 
 export class BattleManager {
 	gameId: string;
@@ -14,14 +25,22 @@ export class BattleManager {
 	appliedPowerUps: Record<string, PowerUp[]> = $state({});
 	playerHand: Card[] = $state([]);
 	enemyHand: Card[] = $state([]);
+	gameOutcome: GameOutcome | null = $state(null);
 
 	// For the hand preparation stage
 	availablePowerUps: PowerUp[] = [];
 	playerCoins: number = $state(100); // Starting coins
 
-	countdown: number = 0;
+	countdown: number = $state(0);
+	totalTime: number = $state(10);
+
+	roundNumber: number = $state(0);
+	totalRounds: number = $state(5);
+
 	player1Ready: boolean = false;
 	player2Ready: boolean = true;
+
+	attacking: boolean = $state(false);
 
 	constructor(gameId: string) {
 		this.gameId = gameId;
@@ -215,9 +234,84 @@ export class BattleManager {
 		await this.pushGameToFirestore();
 	}
 
-	public async processTurn(userInput: string) {}
-}
+	public async processTurn(userInput: string) {
+		if (this.attacking) return;
 
+		this.player1Ready = true;
+		while (this.player1Ready) {
+			console.log('Processing turn...');
+			const valid = validateAnswer(userInput, this.playerHand[0].term);
+			const robotValid = Math.random() < 0.5;
+			await this.attack(valid, robotValid);
+		}
+	}
+
+	attack(valid: boolean, robotValid: boolean): Promise<void> {
+		console.log(valid, robotValid);
+		this.attacking = true;
+
+		// Create clones of the cards to work with
+		const attacker = { ...this.playerHand[0] };
+		const target = { ...this.enemyHand[0] };
+
+		// Calculate new health values
+		const newAttackerHealth = attacker.base_health - (robotValid ? target.base_dmg : 0);
+		const newTargetHealth = target.base_health - (valid ? attacker.base_dmg : 0);
+
+		// Update the cards in the arrays with new health values
+		this.playerHand[0] = { ...attacker, base_health: newAttackerHealth };
+		this.enemyHand[0] = { ...target, base_health: newTargetHealth };
+
+		// Log attack results
+		console.log(
+			'attack: ' +
+				(valid ? `Player deals ${attacker.base_dmg} damage` : 'Player misses') +
+				', ' +
+				(robotValid ? `Enemy deals ${target.base_dmg} damage` : 'Enemy misses')
+		);
+
+		// Return a promise that resolves when the animation is complete
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				this.attacking = false;
+
+				if (newAttackerHealth <= 0) {
+					this.playerHand.shift();
+					this.player1Ready = false;
+				}
+
+				if (newTargetHealth <= 0) {
+					this.enemyHand.shift();
+				}
+
+				// if player card is wrong and survived, move it to the back of the queue
+				if (newAttackerHealth > 0 && !valid) {
+					const currentCard = this.playerHand.shift();
+					if (currentCard) this.playerHand.push(currentCard);
+					this.player1Ready = false;
+				}
+
+				// check if player lost
+				if (this.playerHand.length === 0) {
+					this.gameOutcome = GameOutcome.Loss;
+				}
+				if (this.enemyHand.length === 0) {
+					this.gameOutcome = GameOutcome.Win;
+				}
+				if (this.playerHand.length === 0 && this.enemyHand.length === 0) {
+					this.gameOutcome = GameOutcome.Draw;
+				}
+				// check if game is over
+				if (this.gameOutcome && this.game != null) {
+					this.player1Ready = false;
+					this.game.gameState = GameState.EndScreen;
+				}
+
+				resolve();
+			}, 1000);
+		});
+	}
+}
 // processTurn(correct: boolean): {
 // 	log: string;
 // 	done: boolean;
