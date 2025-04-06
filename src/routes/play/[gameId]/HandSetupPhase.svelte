@@ -128,6 +128,7 @@
 				ondragover={(e) => (handleDragOver(e, i), handleCardDragOver(e, card))}
 				ondrop={(e) => (handleDrop(e, i), handlePowerUpDrop(e, card))}
 				animate:flip={{ duration: 300 }}
+				draggable="true"
 			>
 				<GameCard {card} {battleManager} />
 				<div
