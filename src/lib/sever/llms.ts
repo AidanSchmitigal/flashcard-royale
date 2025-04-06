@@ -49,11 +49,9 @@ export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any |
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
 			 Flashcards: ${promptData}`)
 
-		return text;
-		//return JSON.parse(removePartsBeforeAndAfterBrackets(text));
+		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
-		return err;
 		return cards.map((card) => { return { attack: Math.floor(Math.random() * 11), defense: Math.floor(Math.random() * 11) } });
 	}
 }
@@ -74,7 +72,6 @@ export async function getCorrect(question: string, answer: string, user: string)
 export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]> {
 	try {
 		let difficulties = await getDifficultyFromGemini(cards);
-		return difficulties;
 
 		for (let i = 0; i < cards.length; i++) {
 			let random_attack = Math.random() * 4 - 2;
@@ -86,8 +83,7 @@ export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]
 		return difficulties;
 	} catch (err) {
 		console.error('Failed to use cards:', err);
-		return err;
-		//return cards;
+		return cards;
 	}
 }
 
