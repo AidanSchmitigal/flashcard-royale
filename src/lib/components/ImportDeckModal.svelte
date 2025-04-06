@@ -57,7 +57,6 @@
 		try {
 			processingLLM = true;
 			
-			console.log(JSON.stringify(cards))
 			const response = await fetch('/api/process-deck', {
 				method: 'POST',
 				redirect: 'follow',
@@ -68,8 +67,6 @@
 			});
 			
 			const data = await response.json();
-
-			console.log(data)
 			
 			if (!response.ok) {
 				throw new Error(data.error || 'Failed to process cards');
