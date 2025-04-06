@@ -1,11 +1,12 @@
 import type { FlashCard } from "$lib/client/types";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GEMINI_API_KEY } from '$env/static/private';
 
 // Function to calculate base damage
 function calculateBaseDamage(): number {
     return Math.floor(Math.random() * 10) + 1; // Random number between 1 and 10 for base_dmg
 }
+
+const GEMINI_API_KEY = 'HI OSUSEC'
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
