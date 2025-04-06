@@ -12,23 +12,19 @@
 	const { battleManager }: { battleManager: BattleManager } = $props();
 
 	let userInput = $state('');
-	let failed = $state(false);
+	let answeredCorrectly: boolean | null = $state(null);
 	function handleSubmit(e: SubmitEvent) {
-		console.log(userInput);
 		e.preventDefault();
 
 		battleManager.processTurn(userInput).then(() => {
-			failed = false;
+			answeredCorrectly = null;
 			userInput = '';
 		});
 
 		// This is a hack
 		const valid = validateAnswer(userInput, battleManager.playerHand[0].term);
-		if (!valid) {
-			userInput = battleManager.playerHand[0].term;
-		}
-
-		failed = !valid;
+		answeredCorrectly = valid;
+		userInput = answeredCorrectly ? 'Correct!' : 'Incorrect';
 	}
 </script>
 
@@ -111,8 +107,13 @@
 
 		<!-- Answer input card -->
 		<form class="flex flex-col gap-4" onsubmit={handleSubmit}>
-			<for
-				class="relative flex h-48 w-96 flex-col overflow-hidden rounded-md bg-white p-3 shadow-lg"
+			<div
+				class="relative flex h-48 w-96 flex-col overflow-hidden rounded-md bg-white p-3 shadow-lg {answeredCorrectly ==
+				null
+					? ''
+					: answeredCorrectly
+						? 'border-2 border-green-600'
+						: 'border-2 border-red-600 '}"
 			>
 				<img
 					src={logoSmall}
@@ -122,13 +123,17 @@
 				<div class="flex flex-grow flex-col">
 					<input
 						placeholder="Write your answer here..."
-						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none disabled:bg-gray-200"
-						class:border-red-500={failed}
+						class="w-full flex-grow rounded-sm border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none disabled:bg-gray-200 {answeredCorrectly ==
+						null
+							? ''
+							: answeredCorrectly
+								? ' text-green-600'
+								: ' text-red-600'}"
 						bind:value={userInput}
 						disabled={battleManager.attacking}
 					/>
 				</div>
-			</for>
+			</div>
 			<button
 				type="submit"
 				class="w-full cursor-pointer rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700 disabled:bg-gray-300"
