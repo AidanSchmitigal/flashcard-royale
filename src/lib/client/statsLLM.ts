@@ -1,5 +1,4 @@
 import axios from 'axios';
-import admin from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
 
 // Gemini API Key
@@ -43,31 +42,24 @@ async function getDifficultyFromGemini(question: string): Promise<number> {
 }
 
 // Function to process a full deck of flashcards
-async function processFlashcards(inputJson: { Question: string; Answer: string }[]) {
-    const deck: any[] = [];
+export async function processFlashcards(inputJson: QuizCard[]): Promise<Card[]> {
+    const cards: Card[] = [];
 
     for (const card of inputJson) {
-        const { Question, Answer } = card;
-
-        const baseHealth = await getDifficultyFromGemini(Question);
+        const baseHealth = await getDifficultyFromGemini(card.question);
         const baseDamage = calculateBaseDamage();
         const cardId = uuidv4();
 
-        const cardObject = {
-            id: cardId,
-            question: Question,
-            answer: Answer,
-            base_health: baseHealth,
-            base_dmg: baseDamage,
+        const cardObject: Card = {
+            question: card.question,
+            answer: card.answer,
+            baseHealth: baseHealth,
+            baseDamage: baseDamage,
         };
 
-        deck.push(cardObject);
-
-        // Store in Firestore
-        await db.collection('flashcards').doc(cardId).set(cardObject);
+        cards.push(cardObject);
     }
-    // Print the JSON deck
-    console.log(JSON.stringify(deck, null, 2));
-    return deck;
+
+    return cards;
 }
 
