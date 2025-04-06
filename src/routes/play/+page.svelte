@@ -117,6 +117,13 @@
 		showPreview = true;
 	}
 
+	function deleteDeck(deck: Deck) {
+		console.log(deck.id);
+		getDocs(query(collection(db, 'decks'), where('id', '==', deck.id))).then((resp) => {
+			deleteDoc(resp.docs[0].ref).then(() => window.location.reload());
+		});
+	}
+
 	function closePreview() {
 		showPreview = false;
 		previewDeck = null;
