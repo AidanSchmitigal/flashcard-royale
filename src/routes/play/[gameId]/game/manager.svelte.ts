@@ -57,8 +57,10 @@ export class BattleManager {
 					gameData.deck.cards = gameData.deck.cards.map((card) => ({
 						...card,
 						// Default values if missing
-						hp: card.base_health || 100,
-						damage: card.base_dmg || 25
+						hp: typeof card.base_health === 'number' ? card.base_health : 100,
+						damage: typeof card.base_dmg === 'number' ? card.base_dmg : 25,
+						base_health: typeof card.base_health === 'number' ? card.base_health : 100,
+						base_dmg: typeof card.base_dmg === 'number' ? card.base_dmg : 25
 					}));
 				}
 
@@ -254,9 +256,9 @@ export class BattleManager {
 		// Log attack results
 		console.log(
 			'attack: ' +
-				(valid ? `Player deals ${attacker.base_dmg} damage` : 'Player misses') +
+				(valid ? `Player deals ${attackerDamage} damage` : 'Player misses') +
 				', ' +
-				(robotValid ? `Enemy deals ${target.base_dmg} damage` : 'Enemy misses')
+				(robotValid ? `Enemy deals ${targetDamage} damage` : 'Enemy misses')
 		);
 
 		// Return a promise that resolves when the animation is complete
