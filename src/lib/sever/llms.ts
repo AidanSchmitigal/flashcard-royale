@@ -49,8 +49,6 @@ export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any |
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
 			 Flashcards: ${promptData}`)
 
-		return text;
-
 		return JSON.parse(removePartsBeforeAndAfterBrackets(text));
 	} catch (err) {
 		console.error('Error fetching difficulty from Gemini:', err);
