@@ -122,8 +122,15 @@
 				}
 
 				// Process with LLM
-				const processedCards = await processCardsWithLLM(cards);
-				
+				let processedCards = null
+				for (let i = 0; i < 5; i++) {
+					processedCards = await processCardsWithLLM(cards);
+					
+					if (processedCards) {
+						break;
+					}
+				}
+
 				if (!processedCards) {
 					throw new Error('Failed to process cards with AI');
 				}
