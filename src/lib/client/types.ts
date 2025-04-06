@@ -17,6 +17,8 @@ export const AvatarColorClasses: Record<AvatarColor, string> = {
 };
 
 export type UserData = {
+	displayName: string;
+	creationTime: string;
 	avatarColor: AvatarColor;
 	badges: Badge[];
 	stats: Stats;
