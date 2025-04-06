@@ -45,7 +45,7 @@
 					base_health: 5, // Default value to be updated by LLM
 					base_dmg: 10 // Default value to be updated by LLM
 				};
-			});
+			}).filter((item: any) => item.term != '' && item.definition != '');
 		} catch (err) {
 			console.error('Error parsing Quizlet data:', err);
 			throw new Error('Failed to parse Quizlet data. Please check the format and try again.');
