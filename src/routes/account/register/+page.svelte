@@ -44,7 +44,8 @@
 				await currentUser.user.reload(); // This is what makes it work for the header
 
 				await setDoc(doc(db, 'users', currentUser.user.uid), {
-					name: name
+					name: name,
+					gamesWon: 0
 				});
 
 				window.location.assign('/');
