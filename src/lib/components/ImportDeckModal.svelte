@@ -9,54 +9,31 @@
 	let importMethod = 'quizlet';
 	let quizletLink = '';
 	let quizletData = '';
-	let csvContent = '';
-	let file = null;
 	let isProcessing = false;
 	let error = '';
 
 	const dispatch = createEventDispatcher();
 
-	function handleFileInput(event) {
-		const selectedFile = event.target.files[0];
-		if (selectedFile) {
-			file = selectedFile;
-			// Read the file if needed
-		}
-	}
-
 	async function handleImport() {
-		if (importMethod === 'csv' && !csvContent.trim() && !file) {
-			error = 'Please paste CSV content or upload a file';
-			return;
-		}
-
-		if (importMethod === 'csv') {
-			error = 'Not Implemented';
-			return;
-		}
-
 		isProcessing = true;
 		error = '';
 
 		try {
 			if (importMethod === 'quizlet') {
-				const deckJson = JSON.parse(quizletData)
-				const cards = get_cards(deckJson)
+				const deckJson = JSON.parse(quizletData);
+				const cards = get_cards(deckJson);
 			}
 
-			// ?
 			dispatch('import-success', {
 				method: importMethod
-				// Additional data...
 			});
-
-			// onClose();
 		} catch (err) {
 			error = 'Failed to import deck. Please try again.';
 		} finally {
 			isProcessing = false;
 		}
 	}
+
 
 	function openQuizletUrl() {
 		let parsed
@@ -103,12 +80,6 @@
 				>
 					Quizlet Link
 				</button>
-				<button
-					class={`px-4 py-2 font-medium ${importMethod === 'csv' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-					on:click={() => (importMethod = 'csv')}
-				>
-					CSV/Text
-				</button>
 			</div>
 
 			{#if importMethod === 'quizlet'}
@@ -137,43 +108,6 @@
 					<p class="text-sm text-gray-500">
 						Paste the URL of any public Quizlet flashcard set to import it.
 					</p>
-				</div>
-			{:else if importMethod === 'csv'}
-				<div class="space-y-4">
-					<label class="block">
-						<span class="text-sm font-medium text-gray-700">Paste CSV Content</span>
-						<textarea
-							bind:value={csvContent}
-							placeholder="term,definition
-vocabulary,the words used in a particular context
-syntax,the arrangement of words in a sentence"
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-							rows="6"
-						></textarea>
-					</label>
-
-					<div class="flex items-center">
-						<span class="text-sm text-gray-500">OR</span>
-						<div class="mx-3 flex-grow border-t border-gray-300"></div>
-					</div>
-
-					<div class="flex items-center justify-center">
-						<label
-							class="flex w-full cursor-pointer flex-col items-center rounded-md border border-gray-300 bg-white px-4 py-6 shadow-sm hover:bg-gray-50"
-						>
-							<svg class="h-8 w-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 5a1 1 0 10-2 0v1.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V9z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-							<span class="mt-2 text-base font-medium text-gray-700">
-								{file ? file.name : 'Upload CSV file'}
-							</span>
-							<input type="file" class="hidden" accept=".csv,.txt" on:change={handleFileInput} />
-						</label>
-					</div>
 				</div>
 			{/if}
 
