@@ -75,6 +75,7 @@ export async function getCorrect(question: string, answer: string, user: string)
 export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]> {
 	try {
 		let difficulties = await getDifficultyFromGemini(cards);
+		return difficulties;
 
 		for (let i = 0; i < cards.length; i++) {
 			let random_attack = Math.random() * 4 - 2;
