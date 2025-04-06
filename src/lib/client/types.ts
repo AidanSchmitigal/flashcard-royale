@@ -17,7 +17,6 @@ type Game = BaseCollection & {
 };
 
 type Deck = BaseCollection & {
-	gameId: string;
 	cards: string[];
 };
 

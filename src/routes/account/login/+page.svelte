@@ -14,16 +14,17 @@
 	const redirect = page.url.searchParams.get('redirect');
 
 	function login() {
-		console.log("asdf")
+		console.log('asdf');
 		submitButton.disabled = true;
 
 		signInWithEmailAndPassword(auth, email, password)
 			.then(async (_) => {
 				window.location.assign('/');
-			}) .catch((error) => {
+			})
+			.catch((error) => {
 				const errorCode = error.code;
 				const errorMessage = error.message;
-				console.log(errorCode, errorMessage)
+				console.log(errorCode, errorMessage);
 			});
 	}
 </script>

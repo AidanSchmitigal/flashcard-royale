@@ -23,16 +23,17 @@
 
 		createUserWithEmailAndPassword(auth, email, password)
 			.then(async (currentUser) => {
-				await addDoc(collection(db, "users"), {
+				await addDoc(collection(db, 'users'), {
 					id: currentUser.user.uid,
 					name: name
 				});
 
 				window.location.assign('/');
-			}) .catch((error) => {
+			})
+			.catch((error) => {
 				const errorCode = error.code;
 				const errorMessage = error.message;
-				console.log(errorCode, errorMessage)
+				console.log(errorCode, errorMessage);
 			});
 	}
 </script>
