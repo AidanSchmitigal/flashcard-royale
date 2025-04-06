@@ -1,5 +1,4 @@
 import { exec } from "child_process";
-import type { Card } from "./card_schema";
 import { addDoc, collection, Firestore } from "firebase/firestore";
 
 function gen_url(id: string): string {
@@ -46,10 +45,10 @@ export function parse_url(url: string): string | null {
     }
 }*/
 
-export function get_cards(json: string): Card[] {
+export function get_cards(json: string): QuizCard[] {
     let data: any = JSON.parse(json)
 
-    const cards: Card[] = [];
+    const cards: QuizCard[] = [];
 
     for (const item in data.responses[0].models.studiableItem) {
         const question = item[0]
@@ -59,8 +58,4 @@ export function get_cards(json: string): Card[] {
     }
 
     return cards
-}
-
-export async function upload_cards(cards: Card[], db: Firestore) {
-    await addDoc(collection(db, 'quizzes'), cards);
 }
