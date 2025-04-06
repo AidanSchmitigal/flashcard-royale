@@ -14,54 +14,63 @@
 	const userDecks = writable([]);
 	const avatarColor = writable('blue');
 
+	const freeAvatars = [
+		{ id: 'blue', label: 'Blue', class: 'bg-blue-400' },
+		{ id: 'green', label: 'Green', class: 'bg-green-400' },
+		{ id: 'red', label: 'Red', class: 'bg-red-400' },
+		{ id: 'purple', label: 'Purple', class: 'bg-purple-400' },
+		{ id: 'orange', label: 'Orange', class: 'bg-orange-400' }
+	];
+	const unlockableAvatars = [
+		{
+			id: 'gradient1',
+			label: 'Sunset',
+			class: 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
+			requiredWins: 5
+		},
+		{
+			id: 'gradient2',
+			label: 'Ocean Wave',
+			class: 'bg-gradient-to-br from-blue-400 via-teal-400 to-green-400',
+			requiredWins: 10
+		},
+		{
+			id: 'gradient3',
+			label: 'Mystic Night',
+			class: 'bg-gradient-to-tr from-indigo-700 via-purple-600 to-pink-600',
+			requiredWins: 20
+		}
+	];
+
+	const avatarColorClasses: Record<string, string> = {
+		blue: 'bg-blue-400',
+		green: 'bg-green-400',
+		red: 'bg-red-400',
+		purple: 'bg-purple-400',
+		orange: 'bg-orange-400'
+	};
+
 	let showAvatarPicker = false;
 
 	async function changeAvatarColor(color: string) {
 		const currentUser = get(user);
 		const currentUserData = get(userData);
-		const isFree = freeAvatars.find(a => a.id === color);
-		const isUnlocked = unlockableAvatars.find(a => a.id === color && currentUserData?.wins >= a.requiredWins);
+		const isFree = freeAvatars.find((a) => a.id === color);
+		const isUnlocked = unlockableAvatars.find(
+			(a) => a.id === color && currentUserData?.wins >= a.requiredWins
+		);
 
 		if (isFree || isUnlocked) {
 			avatarColor.set(color);
 			showAvatarPicker = false;
 
-		if ($user) {
-			updateUser($user.uid, {
-				avatarColor: color
-			});
+			if ($user) {
+				updateUser($user.uid, {
+					avatarColor: color
+				});
+			}
 		}
 	}
-
-	// onMount(async () => {
-	// 	auth.onAuthStateChanged(async (currentUser) => {
-	// 		user.set(currentUser);
-
-	// 		if (currentUser) {
-	// 			const userDocRef = doc(db, 'users', currentUser.uid);
-	// 			const docSnap = await getDoc(userDocRef);
-
-	// 			if (docSnap.exists()) {
-	// 				const data = docSnap.data();
-	// 				userData.set(data);
-
-	// 				if (data.avatarColor) {
-	// 					avatarColor.set(data.avatarColor);
-	// 				}
-	// 			} else {
-	// 				userData.set({
-	// 					name: currentUser.displayName ?? 'No Name',
-	// 					email: currentUser.email,
-	// 					wins: 0,
-	// 					gamesPlayed: 0
-	// 				});
-	// 			}
-
-	// 			const decks = await fetchUserDecks(currentUser.uid);
-	// 			userDecks.set(decks);
-	// 		}
-	// 	});
-	// });
 
 	const badges = [
 		{ icon: '🏆', description: 'Top Scorer' },
@@ -136,7 +145,9 @@
 		</p>
 	</div>
 
-	<StatsOverview stats={$user.stats} />
+	{#if $user}
+		<StatsOverview stats={$user.stats} />
+	{/if}
 
 	<div class="flex flex-col gap-4">
 		{#if games.length === 0}
