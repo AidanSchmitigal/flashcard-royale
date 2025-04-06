@@ -253,14 +253,6 @@ export class BattleManager {
 		attacker.base_health = newAttackerHealth;
 		target.base_health = newTargetHealth;
 
-		// Log attack results
-		console.log(
-			'attack: ' +
-				(valid ? `Player deals ${attackerDamage} damage` : 'Player misses') +
-				', ' +
-				(robotValid ? `Enemy deals ${targetDamage} damage` : 'Enemy misses')
-		);
-
 		// Return a promise that resolves when the animation is complete
 		await new Promise((resolve) =>
 			setTimeout(() => {
