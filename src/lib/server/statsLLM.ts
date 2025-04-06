@@ -25,7 +25,7 @@ function calculateBaseDamage(): number {
 async function getDifficultyFromGemini(question: string): Promise<number> {
     try {
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}',
             {
                 contents: [
                     {
