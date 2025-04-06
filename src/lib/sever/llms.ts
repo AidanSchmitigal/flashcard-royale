@@ -42,12 +42,11 @@ async function callGemini(prompt: string): Promise<string | null> {
 export async function getDifficultyFromGemini(cards: FlashCard[]): Promise<any | null> {
 	const questionsAndAnswers = cards.map((card) => { return { question: card.term, answer: card.definition } })
 	const promptData = JSON.stringify(questionsAndAnswers)
-	console.log(promptData)
 
 	try {
 		const text = await callGemini(
 			`For each of these flash cards give them an attack and defense between 1 and 10 based on the difficulties of the cards in order.
-			 Make the attack and defense different add some randomness
+			 Make the attack and defense different add some randomness. MAKE THEM VERY DIFFERENT IN SOME CASES
 			 Output using the JSON schema [{reason: string, attack: int, defense: int}, ...]
 			 OUTPUT NO OTHER TEXT THAN THE FORMATTED RESPONSE.
 			 Flashccards: ${promptData}`)
@@ -77,8 +76,10 @@ export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]
 		let difficulties = await getDifficultyFromGemini(cards);
 
 		for (let i = 0; i < cards.length; i++) {
-			cards[i].base_dmg = Math.min(Math.max(Math.round(difficulties[i].attack), 0), 10)
-			cards[i].base_health = Math.min(Math.max(Math.round(difficulties[i].defense), 0), 10)
+			let random_attack = Math.random() * 4 - 2;
+			let random_defense = Math.random() * 4 - 2
+			cards[i].base_dmg = Math.min(Math.max(Math.round(difficulties[i].attack + random_attack), 0), 10)
+			cards[i].base_health = Math.min(Math.max(Math.round(difficulties[i].defense + random_defense), 0), 10)
 		}
 
 		return cards;

@@ -34,8 +34,8 @@
 			
 			return studiableItems.map(item => {
 				// Extract term and definition from the card sides
-				const term = item.cardSides.find(side => side.sideId === 0)?.media[0]?.plainText || '';
-				const definition = item.cardSides.find(side => side.sideId === 1)?.media[0]?.plainText || '';
+				const term = item.cardSides.find(side => side.sideId === 1)?.media[0]?.plainText;
+				const definition = item.cardSides.find(side => side.sideId === 2)?.media[0]?.plainText;
 				
 				// Create a properly formatted card with all required fields
 				return {
