@@ -1,6 +1,6 @@
 // src/lib/battle/BattleManager.ts
 import { docs } from '$lib/client/firebase';
-import { getDoc, updateDoc } from '@firebase/firestore';
+import { getDoc, increment, updateDoc } from '@firebase/firestore';
 import { type Card, type Game, type PowerUp, GameOutcome, GameState } from './index';
 import { validateAnswer } from './validation';
 
@@ -289,8 +289,50 @@ export class BattleManager {
 		}
 		// check if game is over
 		if (this.gameOutcome != null && this.game != null) {
+			console.log('Game over:', this.gameOutcome);
 			this.player1Ready = false;
+			// update player on db
+			await this.updateDbPlayer();
 			this.game.gameState = GameState.EndScreen;
+		}
+	}
+
+	private async updateDbPlayer() {				
+		try {
+			// Get a reference to the player document
+			const playerRef = docs.user(this.game.player1);
+
+			console.log('Updating player stats...', this.gameOutcome);
+			
+			// Always increment games played
+			await updateDoc(playerRef, {
+				'stats.gamesPlayed': increment(1)
+			});
+			
+			// Add the appropriate counter based on game outcome using nested field paths
+			switch (this.gameOutcome) {
+				case GameOutcome.Win:
+					await updateDoc(playerRef, {
+						'stats.gamesWon': increment(1)
+					});
+					break;
+				case GameOutcome.Loss:
+					await updateDoc(playerRef, {
+						'stats.gamesLost': increment(1)
+					});
+					break;
+				case GameOutcome.Draw:
+					await updateDoc(playerRef, {
+						'stats.gamesDraw': increment(1)
+					});
+					break;
+				default:
+					console.error(`Unhandled game outcome: ${this.gameOutcome}`);
+			}
+			
+			console.log('Player stats updated successfully');
+		} catch (error) {
+			console.error('Error updating player stats:', error);
 		}
 	}
 }
