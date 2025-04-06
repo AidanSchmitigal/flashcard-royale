@@ -90,8 +90,8 @@
 	<!-- Create/Import New Deck Section -->
 	<section>
 		<h2 class="mb-4 text-2xl font-semibold text-gray-800">Import New Deck</h2>
-		<div class="mx-auto inline-block rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-			<div class="flex flex-wrap justify-center gap-6">		
+		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<!-- Quizlet Import -->
 				<button
 					on:click={openImportModal}
