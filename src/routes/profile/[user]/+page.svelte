@@ -121,7 +121,7 @@
 					></div>
 				</div>
 				<p class="mt-1 text-sm text-gray-600">
-					{user.stats.gamesWon ?? 0} wins • {100 - Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% to max
+					{user.stats.gamesWon ?? 0} wins • {Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% towards max
 				</p>
 			</div>
 
