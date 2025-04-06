@@ -6,7 +6,7 @@ export type Card = {
 	damage: number;
 };
 
-export function createCardFromFlashcard(term: string, definition: string): Card {
+export function createCardFromFlashcard(term: string, definition: string, health: number, damage: number): Card {
 	return {
 		id: crypto.randomUUID(),
 		term,
