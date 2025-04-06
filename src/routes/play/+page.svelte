@@ -179,7 +179,30 @@
 
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each userDecks as deck}
-						<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+						<div
+							class="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md"
+						>
+							<!-- Delete Button -->
+							<!-- svelte-ignore a11y_consider_explicit_label -->
+							<button
+								on:click={() => deleteDeck(deck)}
+								class="absolute top-2 right-2 rounded-full bg-red-600 p-2 text-white hover:bg-red-700"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="h-3 w-3"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
 							<div class="p-5">
 								<h3 class="text-lg font-semibold text-neutral-900">{deck.title}</h3>
 								<p class="text-sm text-neutral-500">{deck.cardCount} cards</p>
