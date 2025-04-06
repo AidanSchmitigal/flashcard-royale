@@ -1,18 +1,8 @@
 <script lang="ts">
-	import { auth, db, updateUser, user } from '$lib/client/firebase';
-	import { onMount } from 'svelte';
-	import { doc, getDoc, updateDoc } from 'firebase/firestore';
-	import type { PageProps } from './$types';
+	import { updateUser, user } from '$lib/client/firebase';
 	import GameHistoryCard from '$lib/components/GameHistory.svelte';
 	import StatsOverview from '$lib/components/StatsOverview.svelte';
-	import { writable, get } from 'svelte/store';
-	import type { User } from '@firebase/auth';
-	import { fetchUserDecks } from '$lib/client/getUserDecks';
-
-	// const user = writable<User | null>(null);
-	const userData = writable<any>(null);
-	const userDecks = writable([]);
-	const avatarColor = writable('blue');
+	import { AvatarColor, AvatarColorClasses } from '$lib/client/types';
 
 	const freeAvatars = [
 		{ id: 'blue', label: 'Blue', class: 'bg-blue-400' },
@@ -21,6 +11,7 @@
 		{ id: 'purple', label: 'Purple', class: 'bg-purple-400' },
 		{ id: 'orange', label: 'Orange', class: 'bg-orange-400' }
 	];
+
 	const unlockableAvatars = [
 		{
 			id: 'gradient1',
@@ -42,28 +33,16 @@
 		}
 	];
 
-	const avatarColorClasses: Record<string, string> = {
-		blue: 'bg-blue-400',
-		green: 'bg-green-400',
-		red: 'bg-red-400',
-		purple: 'bg-purple-400',
-		orange: 'bg-orange-400'
-	};
-
 	let showAvatarPicker = false;
 
-	async function changeAvatarColor(color: string) {
-		const currentUser = get(user);
-		const currentUserData = get(userData);
+	async function changeAvatarColor(color: AvatarColor) {
 		const isFree = freeAvatars.find((a) => a.id === color);
 		const isUnlocked = unlockableAvatars.find(
-			(a) => a.id === color && currentUserData?.wins >= a.requiredWins
+			(a) => a.id === color && ($user?.stats.gamesWon ?? 0) >= a.requiredWins
 		);
-
-		if (isFree || isUnlocked) {
-			avatarColor.set(color);
+		if ((isFree || isUnlocked) && $user != null) {
+			$user.avatarColor = color;
 			showAvatarPicker = false;
-
 			if ($user) {
 				updateUser($user.uid, {
 					avatarColor: color
@@ -96,21 +75,21 @@
 		<div>
 			<div class="relative">
 				<button
-					class={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-4 border-white text-4xl font-bold text-white shadow-md ${avatarColorClasses[$avatarColor]}`}
+					class={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-4 border-white text-4xl font-bold text-white shadow-md ${AvatarColorClasses[AvatarColor.Blue]}`}
 					on:click={() => (showAvatarPicker = !showAvatarPicker)}
 				>
-					{#if $userData?.name}
-						{$userData.name.charAt(0).toUpperCase()}
+					{#if $user?.displayName}
+						{$user.displayName.charAt(0).toUpperCase()}
 					{/if}
 				</button>
 
 				{#if showAvatarPicker}
 					<div class="absolute top-28 left-0 z-10 flex gap-2 rounded bg-white p-2 shadow">
-						{#each Object.keys(avatarColorClasses) as color}
+						{#each Object.entries(AvatarColorClasses) as [color, className]}
 							<button
 								aria-label="Change Avatar Color"
-								class={`h-10 w-10 cursor-pointer rounded-full ${avatarColorClasses[color]} transition hover:scale-110`}
-								on:click={() => changeAvatarColor(color)}
+								class={`h-10 w-10 cursor-pointer rounded-full ${className} transition hover:scale-110`}
+								on:click={() => changeAvatarColor(color as AvatarColor)}
 							></button>
 						{/each}
 					</div>
@@ -118,8 +97,8 @@
 			</div>
 		</div>
 		<div>
-			<h2 class="text-2xl font-semibold text-gray-800">{$userData?.name ?? 'No Name'}</h2>
-			<p class="text-gray-500">{$userData?.email}</p>
+			<h2 class="text-2xl font-semibold text-gray-800">{$user?.displayName ?? 'No Name'}</h2>
+			<p class="text-gray-500">{$user?.email}</p>
 			<p class="mt-1 text-sm text-neutral-400">
 				Member since {new Date(joinDate).toLocaleDateString()}
 			</p>
@@ -137,11 +116,12 @@
 		<div class="h-5 w-full overflow-hidden rounded-full bg-gray-200">
 			<div
 				class="h-5 bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
-				style={`width: ${Math.min(($userData?.wins ?? 0) * 3.33, 100)}%`}
+				style={`width: ${Math.min(($user?.stats.gamesWon ?? 0) * 3.33, 100)}%`}
 			></div>
 		</div>
 		<p class="mt-1 text-sm text-gray-600">
-			{$userData?.wins ?? 0} wins • {100 - Math.min(($userData?.wins ?? 0) * 3.33, 100)}% to max
+			{$user?.stats.gamesWon ?? 0} wins • {100 -
+				Math.min(($user?.stats.gamesWon ?? 0) * 3.33, 100)}% to max
 		</p>
 	</div>
 
