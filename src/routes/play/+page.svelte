@@ -11,11 +11,14 @@
 		getDocs,
 		setDoc,
 		serverTimestamp,
-		doc
+		doc,
+
+		deleteDoc
+
 	} from 'firebase/firestore';
 	import RecommendedDeckCard from '$lib/components/RecommendedDeckCard.svelte';
 	import ImportDeckModal from '$lib/components/ImportDeckModal.svelte';
-	import { app } from '$lib/client/firebase';
+	import { app, db } from '$lib/client/firebase';
 	import { type Deck, type Card, type Game, GameState, GameOutcome } from './[gameId]/game';
 
 	let recommendedDecks: Deck[] = [];
@@ -179,49 +182,36 @@
 
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each userDecks as deck}
-						<div
-							class="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md"
+					<div class="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
+						<!-- Delete Button -->
+						<!-- svelte-ignore a11y_consider_explicit_label -->
+						<button
+						  on:click={() => deleteDeck(deck)}
+						  class="absolute top-2 right-2 rounded-full bg-red-600 p-2 text-white hover:bg-red-700"
 						>
-							<!-- Delete Button -->
-							<!-- svelte-ignore a11y_consider_explicit_label -->
-							<button
-								on:click={() => deleteDeck(deck)}
-								class="absolute top-2 right-2 rounded-full bg-red-600 p-2 text-white hover:bg-red-700"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-3 w-3"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M6 18L18 6M6 6l12 12"
-									/>
-								</svg>
-							</button>
-							<div class="p-5">
-								<h3 class="text-lg font-semibold text-neutral-900">{deck.title}</h3>
-								<p class="text-sm text-neutral-500">{deck.cardCount} cards</p>
-							</div>
-							<div class="flex space-x-2 px-5 pb-4">
-								<button
-									on:click={() => createAndPlayGame(deck)}
-									class="flex-1 rounded-md bg-indigo-600 px-4 py-2 text-center text-white hover:bg-indigo-700"
-								>
-									Play
-								</button>
-								<button
-									on:click={() => openPreview(deck)}
-									class="flex-1 rounded-md bg-gray-100 px-4 py-2 text-center text-gray-700 hover:bg-gray-200"
-								>
-									Preview
-								</button>
-							</div>
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+							</svg>
+						</button>
+						<div class="p-5">
+							<h3 class="text-lg font-semibold text-neutral-900">{deck.title}</h3>
+							<p class="text-sm text-neutral-500">{deck.cardCount} cards</p>
 						</div>
+						<div class="flex space-x-2 px-5 pb-4">
+							<button
+								on:click={() => createAndPlayGame(deck)}
+								class="flex-1 rounded-md bg-indigo-600 px-4 py-2 text-center text-white hover:bg-indigo-700"
+							>
+								Play
+							</button>
+							<button
+								on:click={() => openPreview(deck)}
+								class="flex-1 rounded-md bg-gray-100 px-4 py-2 text-center text-gray-700 hover:bg-gray-200"
+							>
+								Preview
+							</button>
+						</div>
+					  </div>
 					{/each}
 				</div>
 			</section>
