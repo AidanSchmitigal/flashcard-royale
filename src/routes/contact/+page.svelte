@@ -17,7 +17,6 @@
     
     <section class="mb-8">
         <h2 class="text-blue-700 mb-4 text-xl font-semibold">Aidan Schmitigal</h2>
-        <p class="leading-relaxed"><a href="mailto:oscar.ludwig@icloud.com" class="text-blue-600 hover:underline">oscar.ludwig@icloud.com</a></p>
     </section>
     
     <section class="mb-8">
@@ -27,6 +26,5 @@
     
     <section class="mb-8">
         <h2 class="text-blue-700 mb-4 text-xl font-semibold">Sam</h2>
-        <p class="leading-relaxed"><a href="mailto:turnekai@oregonstate.edu" class="text-blue-600 hover:underline">turnekai@oregonstate.edu</a></p>
     </section>
 </div>
