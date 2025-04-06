@@ -1,9 +1,11 @@
 <!-- src/lib/components/StatsOverview.svelte -->
-<script>
-	export let stats;
+<script lang="ts">
+	import type { Stats } from '$lib/client/types';
+
+	const { stats }: { stats: Stats } = $props();
 
 	// Calculate win rate
-	$: winRate = (stats.gamesWon / stats.gamesPlayed) * 100 || 0;
+	const winRate = (stats.gamesWon / stats.gamesPlayed) * 100 || 0;
 </script>
 
 <div class="stats-overview">
@@ -41,49 +43,6 @@
 		</div>
 		<div class="win-rate-percentage">{winRate.toFixed(1)}%</div>
 	</div>
-
-	{#if stats.achievements}
-		<div class="achievements-section">
-			<h3>Achievements Unlocked</h3>
-			<div class="achievement-progress">
-				<div class="progress-text">
-					{stats.achievements.unlocked} / {stats.achievements.total}
-				</div>
-				<div class="progress-bar">
-					<div
-						class="progress"
-						style="width: {(stats.achievements.unlocked / stats.achievements.total) * 100}%"
-					></div>
-				</div>
-			</div>
-		</div>
-	{/if}
-
-	{#if stats.gameBreakdown}
-		<div class="game-breakdown">
-			<h3>Game Breakdown</h3>
-			<table>
-				<thead>
-					<tr>
-						<th>Game</th>
-						<th>Played</th>
-						<th>Win Rate</th>
-						<th>Best Score</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each stats.gameBreakdown as game}
-						<tr>
-							<td>{game.name}</td>
-							<td>{game.played}</td>
-							<td>{game.winRate}%</td>
-							<td>{game.bestScore}</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	{/if}
 </div>
 
 <style>

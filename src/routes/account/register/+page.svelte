@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData } from './$types';
 	import { page } from '$app/state';
-	import { auth, db } from '$lib/client/firebase';
+	import { auth, createNewUser, db } from '$lib/client/firebase';
 	import { createUserWithEmailAndPassword } from '@firebase/auth';
 	import { addDoc, collection, doc, setDoc } from '@firebase/firestore';
 	import { updateProfile } from 'firebase/auth';
@@ -35,22 +35,8 @@
 
 		submitButton.disabled = true;
 
-		createUserWithEmailAndPassword(auth, email, password)
-			.then(async (currentUser) => {
-				await updateProfile(currentUser.user, {
-					displayName: name
-				});
-
-				await currentUser.user.reload(); // This is what makes it work for the header
-
-				await setDoc(doc(db, 'users', currentUser.user.uid), {
-					name: name,
-					avatarColor: "orange",
-					gamesWon: 0,
-					gamesLost: 0,
-					gamesDrawn: 0
-				});
-
+		createNewUser(email, password, name)
+			.then(() => {
 				window.location.assign('/');
 			})
 			.catch((error) => {

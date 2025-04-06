@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth, db, user } from '$lib/client/firebase';
+	import { auth, db, updateUser, user } from '$lib/client/firebase';
 	import { onMount } from 'svelte';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import type { PageProps } from './$types';
@@ -14,14 +14,6 @@
 	const userDecks = writable([]);
 	const avatarColor = writable('blue');
 
-	const avatarColorClasses: Record<string, string> = {
-		blue: 'bg-blue-400',
-		green: 'bg-green-400',
-		red: 'bg-red-400',
-		purple: 'bg-purple-400',
-		orange: 'bg-orange-400'
-	};
-
 	let showAvatarPicker = false;
 
 	async function changeAvatarColor(color: string) {
@@ -29,8 +21,9 @@
 		showAvatarPicker = false;
 
 		if ($user) {
-			const userDocRef = doc(db, 'users', $user.uid);
-			await updateDoc(userDocRef, { avatarColor: color });
+			updateUser($user.uid, {
+				avatarColor: color
+			});
 		}
 	}
 
@@ -81,32 +74,30 @@
 			achievements: 'hkjsdf'
 		}
 	];
-	const stats = 'STATS!!!';
 	const joinDate = '2025-04-03T12:34:56Z';
 </script>
 
 <div class="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 pt-32">
-	{JSON.stringify($user)}
-	{JSON.stringify($userData)}
 	<div class="mb-4 flex items-center gap-4">
 		<div>
 			<div class="relative">
-				<div
+				<button
 					class={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-4 border-white text-4xl font-bold text-white shadow-md ${avatarColorClasses[$avatarColor]}`}
 					on:click={() => (showAvatarPicker = !showAvatarPicker)}
 				>
 					{#if $userData?.name}
 						{$userData.name.charAt(0).toUpperCase()}
 					{/if}
-				</div>
+				</button>
 
 				{#if showAvatarPicker}
 					<div class="absolute top-28 left-0 z-10 flex gap-2 rounded bg-white p-2 shadow">
 						{#each Object.keys(avatarColorClasses) as color}
-							<div
+							<button
+								aria-label="Change Avatar Color"
 								class={`h-10 w-10 cursor-pointer rounded-full ${avatarColorClasses[color]} transition hover:scale-110`}
 								on:click={() => changeAvatarColor(color)}
-							></div>
+							></button>
 						{/each}
 					</div>
 				{/if}
@@ -131,7 +122,7 @@
 		</div>
 	</div>
 
-	<StatsOverview {stats} />
+	<StatsOverview stats={$user.stats} />
 
 	<div class="flex flex-col gap-4">
 		{#if games.length === 0}
