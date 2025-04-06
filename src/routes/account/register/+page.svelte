@@ -81,7 +81,7 @@
 				class="mb-4 w-full rounded-lg border px-3 py-2 lowercase"
 			/>
 			<label for="password" class="mb-2 block"
-				>Password <span class="text-sm text-gray-400">(minimum 5 characters)</span></label
+				>Password <span class="text-sm text-gray-400">(minimum 6 characters)</span></label
 			>
 			<input
 				bind:value={password}
