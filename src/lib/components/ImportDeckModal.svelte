@@ -1,13 +1,13 @@
 <!-- src/lib/components/ImportDeckModal.svelte -->
 <script lang="ts">
 	import { auth } from '$lib/client/firebase';
-	import { createDeck } from '../../routes/play/[gameId]/game/data';
-	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
+	import { createDeck} from '../../routes/play/[gameId]/game/data';
+	import { gen_url, parse_url } from '$lib/client/quizlet/request_quizlet';
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { v4 as uuidv4 } from 'uuid';
 
-	export let onClose;
+	export let onClose: () => void;
 
 	let importMethod = 'quizlet';
 	let quizletLink = '';
@@ -40,7 +40,7 @@
 			
 			const studiableItems = data.responses[0].models.studiableItem;
 			
-			return studiableItems.map(item => {
+			return studiableItems.map((item: { cardSides: { sideId: number; media: { plainText: string }[] }[] }) => {
 				// Extract term and definition from the card sides
 				const term = item.cardSides.find(side => side.sideId === 0)?.media[0]?.plainText || '';
 				const definition = item.cardSides.find(side => side.sideId === 1)?.media[0]?.plainText || '';
@@ -83,7 +83,7 @@
 			return data.processedCards;
 		} catch (err) {
 			console.error('Error processing cards with LLM:', err);
-			throw new Error('Failed to process cards with AI: ' + (err.message || ''));
+			throw new Error('Failed to process cards with AI: ' + ((err as Error).message || ''));
 		} finally {
 			processingLLM = false;
 		}
@@ -139,9 +139,10 @@
 				// Create the deck with all required fields and user-provided title
 				createDeck({
 					id: uuidv4(),
-					createdBy : auth.currentUser ? auth.currentUser.uid : '0',
+					createdBy: auth.currentUser ? auth.currentUser.uid : '0',
+					createdAt: new Date(),
 					cards: processedCards,
-					title: deckTitle, // Use the user-provided title
+					title: deckTitle,
 					cardCount: processedCards.length
 				});
 
@@ -155,7 +156,7 @@
 			}
 		} catch (err) {
 			console.error('Import error:', err);
-			error = err.message || 'Failed to import deck. Please try again.';
+			error = (err instanceof Error ? err.message : 'Unknown error') || 'Failed to import deck. Please try again.';
 		} finally {
 			isProcessing = false;
 		}

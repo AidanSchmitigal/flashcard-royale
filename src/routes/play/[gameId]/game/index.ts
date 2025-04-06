@@ -19,9 +19,11 @@ export function createCardFromFlashcard(term: string, definition: string, health
 // define deck
 export type Deck = {
 	id: string;
-	name: string;
-	ownerId: string;
+	title: string;
+	cardCount: number;
 	cards: Card[];
+	createdAt: Date;
+	createdBy: string;
 };
 
 // defing GameHistory like addGameHistory({ deckId, moves: battle.playerHistory, time: new Date() });
