@@ -13,7 +13,22 @@
 	const avatarColor = writable('blue'); // declare BEFORE using
 
 	// reactive class binding for avatar circle
-	$: avatarClass = `bg-${$avatarColor ?? 'blue'}-400`;
+	const freeAvatars = [
+	{ id: 'blue', class: 'bg-blue-400' },
+	{ id: 'green', class: 'bg-green-400' },
+	{ id: 'red', class: 'bg-red-400' },
+	{ id: 'purple', class: 'bg-purple-400' },
+	{ id: 'orange', class: 'bg-orange-400' }
+];
+
+const unlockableAvatars = [
+	{ id: 'gradient1', class: 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500' },
+	{ id: 'gradient2', class: 'bg-gradient-to-br from-blue-400 via-teal-400 to-green-400' },
+	{ id: 'gradient3', class: 'bg-gradient-to-tr from-indigo-700 via-purple-600 to-pink-600' }
+];
+
+$: avatarClass =
+	[...freeAvatars, ...unlockableAvatars].find(a => a.id === $avatarColor)?.class ?? 'bg-blue-400';
 
 	onMount(() => {
 		const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
