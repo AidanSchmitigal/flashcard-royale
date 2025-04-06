@@ -115,7 +115,7 @@
         showImportModal = false;
     }
     
-    function handleImportSuccess(event) {
+    function handleImportSuccess(event: CustomEvent<{ cardCount: number }>) {
         // Show a success message (optional)
         const message = `Successfully imported ${event.detail.cardCount} cards!`;
         console.log(message);
@@ -269,7 +269,7 @@
             <div class="p-5 border-b border-gray-200">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xl font-semibold text-gray-800">{previewDeck.title} Preview</h3>
-                    <button on:click={closePreview} class="text-gray-500 hover:text-gray-700">
+                    <button on:click={closePreview} class="text-gray-500 hover:text-gray-700" aria-label="Close preview">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
