@@ -1,39 +1,62 @@
 <!-- src/lib/components/ImportDeckModal.svelte -->
 <script lang="ts">
+	import { auth } from '$lib/client/firebase';
+	import { createDeck } from '$lib/client/game/data';
 	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
+	import { processFlashcards } from '$lib/client/statsLLM';
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { v4 as uuidv4 } from 'uuid';
 
 	export let onClose;
 
 	let importMethod = 'quizlet';
 	let quizletLink = '';
 	let quizletData = '';
+	let file = null;
 	let isProcessing = false;
 	let error = '';
 
 	const dispatch = createEventDispatcher();
 
+	function handleFileInput(event) {
+		const selectedFile = event.target.files[0];
+		if (selectedFile) {
+			file = selectedFile;
+			// Read the file if needed
+		}
+	}
+
 	async function handleImport() {
+		if (auth.currentUser == null) {
+			error = 'Please sign in';
+			return;
+		}
+
 		isProcessing = true;
 		error = '';
 
 		try {
 			if (importMethod === 'quizlet') {
-				const deckJson = JSON.parse(quizletData);
-				const cards = get_cards(deckJson);
+				const deckJson = JSON.parse(quizletData)
+				const cardsJson = get_cards(deckJson)
+				const cards = await processFlashcards(cardsJson)
+				createDeck({ id: uuidv4(), ownersIds: auth.currentUser ? [auth.currentUser.uid] : [], cards: cards })
 			}
 
+			// ?
 			dispatch('import-success', {
 				method: importMethod
+				// Additional data...
 			});
+
+			// onClose();
 		} catch (err) {
 			error = 'Failed to import deck. Please try again.';
 		} finally {
 			isProcessing = false;
 		}
 	}
-
 
 	function openQuizletUrl() {
 		let parsed
@@ -80,6 +103,12 @@
 				>
 					Quizlet Link
 				</button>
+				<button
+					class={`px-4 py-2 font-medium ${importMethod === 'csv' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+					on:click={() => (importMethod = 'csv')}
+				>
+					CSV/Text
+				</button>
 			</div>
 
 			{#if importMethod === 'quizlet'}
@@ -109,7 +138,6 @@
 						Paste the URL of any public Quizlet flashcard set to import it.
 					</p>
 				</div>
-			{/if}
 
 			{#if error}
 				<div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
