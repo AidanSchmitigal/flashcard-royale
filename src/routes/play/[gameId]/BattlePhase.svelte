@@ -5,6 +5,7 @@
 	import { flip } from 'svelte/animate';
 	import type { BattleManager } from './game/manager.svelte';
 	import { float } from '$lib/client/transitions';
+	import GameCard from './GameCard.svelte';
 
 	const { battleManager }: { battleManager: BattleManager } = $props();
 
@@ -30,25 +31,7 @@
 					class:border-blue-500={i === 0}
 					transition:fade
 				>
-					<div
-						class="flex h-full flex-col overflow-hidden rounded-lg bg-gradient-to-br from-amber-50 to-amber-200 shadow-md"
-					>
-						<div class="flex flex-1 flex-col p-1 sm:p-2">
-							<img
-								src="/src/lib/images/logo-small.png"
-								alt="Card"
-								class="pointer-events-none h-8 w-auto object-contain sm:h-10"
-							/>
-							<div class="mt-auto flex justify-between border-t border-gray-200 pt-1">
-								<div class="rounded bg-green-100 px-1 py-0.5 text-xs font-bold text-green-800">
-									HP: {card.base_health}
-								</div>
-								<div class="rounded bg-red-100 px-1 py-0.5 text-xs font-bold text-red-800">
-									DMG: {card.base_dmg}
-								</div>
-							</div>
-						</div>
-					</div>
+					<GameCard {card} {battleManager} />
 					{#if i === 0}
 						<div
 							class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-blue-500 px-1.5 py-0.5 text-xs text-white"
@@ -75,25 +58,7 @@
 					class:border-red-500={i === 0}
 					transition:fade
 				>
-					<div
-						class="flex h-full flex-col overflow-hidden rounded-lg bg-gradient-to-br from-amber-50 to-amber-200 shadow-md"
-					>
-						<div class="flex flex-1 flex-col p-1 sm:p-2">
-							<img
-								src="/src/lib/images/logo-small.png"
-								alt="Card"
-								class="pointer-events-none h-8 w-auto object-contain sm:h-10"
-							/>
-							<div class="mt-auto flex justify-between border-t border-gray-200 pt-1">
-								<div class="rounded bg-green-100 px-1 py-0.5 text-xs font-bold text-green-800">
-									HP: {card.base_health}
-								</div>
-								<div class="rounded bg-red-100 px-1 py-0.5 text-xs font-bold text-red-800">
-									DMG: {card.base_dmg}
-								</div>
-							</div>
-						</div>
-					</div>
+					<GameCard {card} {battleManager} />
 					{#if i === 0}
 						<div
 							class="absolute -top-2 left-1/2 -translate-x-1/2 transform rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white"

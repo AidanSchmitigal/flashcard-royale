@@ -42,11 +42,13 @@
 				{/each}
 			</div>
 		{/if}
-		<div class="mt-auto flex justify-between border-t border-gray-200 pt-2">
-			<div class="rounded bg-green-100 px-2 py-1 text-sm font-bold text-green-800">
+		<div class="mt-auto flex flex-wrap justify-between border-t border-gray-200 pt-2">
+			<div
+				class="rounded bg-green-100 px-2 py-1 text-sm font-bold whitespace-nowrap text-green-800"
+			>
 				HP: {card.base_health}
 			</div>
-			<div class="rounded bg-red-100 px-2 py-1 text-sm font-bold text-red-800">
+			<div class="rounded bg-red-100 px-2 py-1 text-sm font-bold whitespace-nowrap text-red-800">
 				DMG: {card.base_dmg}
 			</div>
 		</div>
