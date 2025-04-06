@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import 'dotenv/config'
 
 // Function to calculate base damage
 function calculateBaseDamage(): number {
     return Math.floor(Math.random() * 10) + 1; // Random number between 1 and 10 for base_dmg
 }
 
-const API_KEY = process.env.GEMINI_API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY!;
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
