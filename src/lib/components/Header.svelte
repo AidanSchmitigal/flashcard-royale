@@ -69,4 +69,8 @@
 				</button>
 			</div>
 		{/if}
+<<<<<<< HEAD
+=======
+		</div>
+>>>>>>> 7e42b9e67c4af43574f83b85c2bd50df88e69733
 </header>

@@ -3,7 +3,6 @@
 	import { auth } from '$lib/client/firebase';
 	import { createDeck } from '$lib/client/game/data';
 	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
-	import { getDifficultyFromGemini, processFlashcards } from '$lib/client/statsLLM';
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { v4 as uuidv4 } from 'uuid';
@@ -27,19 +26,26 @@
 		}
 	}
 
+	async function processFlashcards(cardsJson: any): Promise<Card[]> {
+		const resp = await fetch('/api/process_cards', {
+			method: "POST",
+			body: JSON.stringify(cardsJson),
+		})
+
+		const json = await resp.json()
+		return json as Card[]
+	}
+
 	async function handleImport() {
 		if (auth.currentUser == null) {
 			error = 'Please sign in';
 			return;
 		}
 
-		const difficulty = await getDifficultyFromGemini("What does a sigma greek letter look like");
-		console.log("Gemini difficulty:", difficulty);
-		
 		isProcessing = true;
 		error = '';
 
-		//try {
+		try {
 			if (importMethod === 'quizlet') {
 				const cardsJson = get_cards(quizletData)
 				const cards = await processFlashcards(cardsJson)
@@ -53,11 +59,11 @@
 			});
 
 			// onClose();
-		//} catch (err) {
-		//	error = 'Failed to import deck. Please try again.';
-		//} finally {
-		//	isProcessing = false;
-		//}
+		} catch (err) {
+			error = 'Failed to import deck. Please try again.';
+		} finally {
+			isProcessing = false;
+		}
 	}
 
 	function openQuizletUrl() {
