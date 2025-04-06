@@ -17,15 +17,6 @@
 	let processingLLM = false;
 	let error = '';
 
-	// Define proper types for cards - matching the required format
-	type FlashCard = {
-		term: string;
-		definition: string;
-		id: string;
-		base_health: number;
-		base_dmg: number;
-	};
-
 	const dispatch = createEventDispatcher();
 
 	// Helper function to parse Quizlet response
@@ -42,8 +33,8 @@
 			
 			return studiableItems.map((item: { cardSides: { sideId: number; media: { plainText: string }[] }[] }) => {
 				// Extract term and definition from the card sides
-				const term = item.cardSides.find(side => side.sideId === 0)?.media[0]?.plainText || '';
-				const definition = item.cardSides.find(side => side.sideId === 1)?.media[0]?.plainText || '';
+				const term = item.cardSides.find(side => side.sideId === 1)?.media[0]?.plainText;
+				const definition = item.cardSides.find(side => side.sideId === 2)?.media[0]?.plainText;
 				
 				// Create a properly formatted card with all required fields
 				return {
@@ -64,14 +55,14 @@
 	async function processCardsWithLLM(cards: FlashCard[]) {
 		try {
 			processingLLM = true;
-			const cardsToProcess = cards.map(({ term, definition }) => ({ term, definition }));
-			
+
+			console.log(cards)
 			const response = await fetch('/api/process-deck', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ cards: cardsToProcess })
+				body: JSON.stringify({ cards: cards })
 			});
 			
 			const data = await response.json();

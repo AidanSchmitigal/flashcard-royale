@@ -1,5 +1,5 @@
 import { db } from '$lib/client/firebase';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 
 export async function getTopScoringUsers(limit = 10) {
     try {
@@ -10,8 +10,8 @@ export async function getTopScoringUsers(limit = 10) {
             const data = doc.data();
             return {
                 id: doc.id,
-                name: data.name || 'Anonymous',
-                gamesWon: data.gamesWon || 0
+                name: data.displayName || data.email || 'Anonymous',
+                gamesWon: data.stats?.gamesWon || 0
             };
         });
         
@@ -36,8 +36,8 @@ export async function getUserRank(userId: string) {
             const data = doc.data();
             return {
                 id: doc.id,
-                name: data.name || 'Anonymous',
-                gamesWon: data.gamesWon || 0
+                name: data.displayName || data.email || 'Anonymous',
+                gamesWon: data.stats?.gamesWon || 0
             };
         });
         
@@ -53,8 +53,8 @@ export async function getUserRank(userId: string) {
             
             return {
                 rank: userIndex + 1,
-                name: userData?.name || 'Anonymous',
-                gamesWon: userData?.gamesWon || 0
+                name: userData?.displayName || userData?.email || 'Anonymous',
+                gamesWon: userData?.stats?.gamesWon || 0
             };
         }
         
@@ -66,22 +66,35 @@ export async function getUserRank(userId: string) {
 }
 
 // Function to add games won for a user
-export async function addGameWin(username: string): Promise<void> {
-    const userRef = ref(db, `leaderboard/${username}`);
-    const snapshot = await get(userRef);
+export async function addGameWin(userId: string): Promise<void> {
+    try {
+        const userDocRef = doc(db, 'users', userId);
+        const userSnapshot = await getDoc(userDocRef);
 
-    if (snapshot.exists()) {
-        const userData = snapshot.val();
-        const updatedData = {
-            gamesWon: (userData.gamesWon || 0) + 1,
-            score: (userData.score || 0) + 10, // Increment score by 10 for each win
-        };
-        await update(userRef, updatedData);
-    } else {
-        const newUserData = {
-            gamesWon: 1,
-            score: 10,
-        };
-        await set(userRef, newUserData);
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const currentStats = userData.stats || {
+                xp: 0,
+                level: 1,
+                gamesPlayed: 0,
+                gamesWon: 0,
+                gamesLost: 0,
+                gamesDraw: 0
+            };
+            
+            // Update the stats
+            const updatedStats = {
+                ...currentStats,
+                gamesWon: (currentStats.gamesWon || 0) + 1,
+                gamesPlayed: (currentStats.gamesPlayed || 0) + 1,
+                xp: (currentStats.xp || 0) + 10 // Add XP for winning
+            };
+            
+            await updateDoc(userDocRef, { stats: updatedStats });
+        } else {
+            console.error("User document does not exist");
+        }
+    } catch (error) {
+        console.error("Error updating game win:", error);
     }
 }

@@ -17,6 +17,8 @@ export const AvatarColorClasses: Record<AvatarColor, string> = {
 };
 
 export type UserData = {
+	displayName: string;
+	creationTime: string;
 	avatarColor: AvatarColor;
 	badges: Badge[];
 	stats: Stats;
@@ -38,12 +40,20 @@ export type Badge = {
 	description: string;
 };
 
-// export type Game = {
-// 	result: string;
-// 	gameName: string;
-// 	playedAt: string;
-// 	score: string;
-// 	playTime: string;
-// 	xpEarned: string;
-// 	achievements: string;
-// };
+export type Game = {
+	result: string;
+	gameName: string;
+	playedAt: string;
+	score: string;
+	playTime: string;
+	xpEarned: string;
+	achievements: string;
+};
+
+export type FlashCard = {
+	term: string;
+	definition: string;
+	id: string;
+	base_health: number;
+	base_dmg: number;
+};

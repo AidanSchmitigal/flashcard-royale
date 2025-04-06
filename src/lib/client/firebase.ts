@@ -90,9 +90,9 @@ export async function getAll<T>(col: CollectionReference<T>): Promise<T[]> {
 	return snap.docs.map((doc) => doc.data());
 }
 
-export async function getUser(id: string): Promise<User | null> {
+export async function getUser(id: string): Promise<(UserData & { uid: string }) | null> {
 	const snap = await getDoc(docs.user(id));
-	return snap.exists() ? snap.data() : null;
+	return snap.exists() ? { uid: id, ...snap.data() } : null;
 }
 
 export async function updateUser(id: string, data: Partial<User>): Promise<void> {
@@ -105,6 +105,8 @@ export async function createNewUser(email: string, password: string, name: strin
 		});
 
 		await setDoc(doc(db, 'users', currentUser.user.uid), {
+			displayName: name,
+			creationTime: new Date().toISOString(),
 			avatarColor: 'blue',
 			badges: [],
 			stats: {

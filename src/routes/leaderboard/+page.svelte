@@ -3,6 +3,7 @@
 	import { getTopScoringUsers, getUserRank } from '$lib/client/leaderboard';
 	import { auth } from '$lib/client/firebase';
 	import { onDestroy } from 'svelte';
+	import { user } from '$lib/client/firebase';
 
 	let leaderboard: { name: string; gamesWon: number }[] = [];
 	let signedInUsername = '';

@@ -5,7 +5,7 @@
 	const { stats }: { stats: Stats } = $props();
 
 	// Calculate win rate
-	const winRate = (stats.gamesWon / stats.gamesPlayed) * 100 || 0;
+	const winRate = (stats.gamesWon / (stats.gamesWon + stats.gamesLost)) * 100 || 0;
 </script>
 
 <div class="stats-overview">
@@ -37,7 +37,7 @@
 	</div>
 
 	<div class="win-rate-container">
-		<div class="win-rate-label">Win Rate</div>
+		<div class="win-rate-label">Win To Loss Rate</div>
 		<div class="win-rate-bar">
 			<div class="win-rate-progress" style="width: {winRate}%"></div>
 		</div>

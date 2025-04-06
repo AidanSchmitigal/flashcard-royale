@@ -31,6 +31,10 @@
 				submitButton.disabled = false;
 			});
 	}
+	
+	function goBack() {
+		history.back();
+	}
 </script>
 
 <svelte:head>
@@ -47,10 +51,10 @@
 				>
 			</div>
 		{:else}
-			<a href={`/${page.url.searchParams.get('redirect') ?? ''}`} class="group text-amber-500">
+			<button onclick={goBack} class="group text-amber-500">
 				<span class="inline-block transition-transform group-hover:-translate-x-1">←</span
 				>&nbsp;Back
-			</a>
+			</button>
 			<h1 class="mb-4 text-3xl font-bold">Login</h1>
 			{#if loginError}
 				<p class="mb-4 text-red-500">{loginError}</p>

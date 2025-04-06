@@ -1,59 +1,13 @@
 <script lang="ts">
-	import { updateUser } from '$lib/client/firebase';
+	import { updateUser, user as signedInUser } from '$lib/client/firebase';
 	import GameHistoryCard from '$lib/components/GameHistory.svelte';
 	import StatsOverview from '$lib/components/StatsOverview.svelte';
 	import { AvatarColor, AvatarColorClasses } from '$lib/client/types';
 	import type { PageProps } from './$types';
+	import { changeAvatarColor, freeAvatars, unlockableAvatars } from '$lib/client/battlepass';
 
 	let { data }: PageProps = $props();
-
-	// const freeAvatars = [
-	// 	{ id: 'blue', label: 'Blue', class: 'bg-blue-400' },
-	// 	{ id: 'green', label: 'Green', class: 'bg-green-400' },
-	// 	{ id: 'red', label: 'Red', class: 'bg-red-400' },
-	// 	{ id: 'purple', label: 'Purple', class: 'bg-purple-400' },
-	// 	{ id: 'orange', label: 'Orange', class: 'bg-orange-400' }
-	// ];
-
-	// const unlockableAvatars = [
-	// 	{
-	// 		id: 'gradient1',
-	// 		label: 'Sunset',
-	// 		class: 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
-	// 		requiredWins: 5
-	// 	},
-	// 	{
-	// 		id: 'gradient2',
-	// 		label: 'Ocean Wave',
-	// 		class: 'bg-gradient-to-br from-blue-400 via-teal-400 to-green-400',
-	// 		requiredWins: 10
-	// 	},
-	// 	{
-	// 		id: 'gradient3',
-	// 		label: 'Mystic Night',
-	// 		class: 'bg-gradient-to-tr from-indigo-700 via-purple-600 to-pink-600',
-	// 		requiredWins: 20
-	// 	}
-	// ];
-
 	let showAvatarPicker = $state(false);
-
-	// async function changeAvatarColor(color: AvatarColor) {
-	// 	const isFree = freeAvatars.find((a) => a.id === color);
-	// 	const isUnlocked = unlockableAvatars.find(
-	// 		(a) => a.id === color && (user.stats.gamesWon ?? 0) >= a.requiredWins
-	// 	);
-	// 	if ((isFree || isUnlocked) && user != null) {
-	// 		user.avatarColor = color;
-	// 		showAvatarPicker = false;
-	// 		if (user) {
-	// 			updateUser(user.uid, {
-	// 				avatarColor: color
-	// 			});
-	// 		}
-	// 	}
-	// }
-
 	const userPromise = data.user;
 
 	const badges = [
@@ -72,7 +26,6 @@
 			achievements: 'hkjsdf'
 		}
 	];
-	const joinDate = '2025-04-03T12:34:56Z';
 </script>
 
 {#await userPromise}
@@ -97,32 +50,58 @@
 				<div>
 					<div class="relative">
 						<button
-							class={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-4 border-white text-4xl font-bold text-white shadow-md ${AvatarColorClasses[AvatarColor.Blue]}`}
+							class={`flex h-24 w-24 cursor-pointer items-center justify-center rounded-full border-4 border-white text-4xl font-bold text-white shadow-md ${AvatarColorClasses[user.avatarColor]}`}
 							onclick={() => (showAvatarPicker = !showAvatarPicker)}
 						>
-							{#if user.displayName}
-								{user.displayName.charAt(0).toUpperCase()}
-							{/if}
+							{user.displayName?.charAt(0).toUpperCase()}
 						</button>
 
-						<!-- {#if showAvatarPicker}
-						<div class="absolute top-28 left-0 z-10 flex gap-2 rounded bg-white p-2 shadow">
-							{#each Object.entries(AvatarColorClasses) as [color, className]}
-								<button
-									aria-label="Change Avatar Color"
-									class={`h-10 w-10 cursor-pointer rounded-full ${className} transition hover:scale-110`}
-									on:click={() => changeAvatarColor(color as AvatarColor)}
-								></button>
-							{/each}
-						</div>
-					{/if} -->
+						{#if showAvatarPicker && $signedInUser != null && $signedInUser.uid == user.uid}
+							<div class="absolute top-28 left-0 z-10 grid grid-cols-5 gap-2 rounded bg-white p-4 shadow">
+								<!-- Unlockable Avatars -->
+								{#each unlockableAvatars as avatar}
+									{#if user.stats.gamesWon >= avatar.requiredWins}
+										<button
+											aria-label="Change Avatar Color"
+											class={`h-10 w-10 cursor-pointer rounded-full transition hover:scale-110 ${avatar.class}`}
+											onclick={async () => {
+												user.avatarColor = avatar.id as AvatarColor;
+												await changeAvatarColor(avatar.id as AvatarColor);
+												showAvatarPicker = false;
+												window.location.reload();
+											}}
+										></button>
+									{:else}
+										<div class="relative h-10 w-10 rounded-full opacity-50 cursor-not-allowed">
+											<div class={`h-full w-full rounded-full ${avatar.class}`}></div>
+											<div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white bg-black/50 rounded-full">
+												{avatar.requiredWins}
+											</div>
+										</div>
+									{/if}
+								{/each}
+
+								<!-- Free Avatars -->
+								{#each freeAvatars as avatar}
+									<button
+										aria-label="Change Avatar Color"
+										class={`h-10 w-10 cursor-pointer rounded-full transition hover:scale-110 ${avatar.class}`}
+										onclick={async () => {
+											user.avatarColor = avatar.id as AvatarColor;
+											await changeAvatarColor(avatar.id as AvatarColor);
+											showAvatarPicker = false;
+											window.location.reload();
+										}}
+									></button>
+								{/each}
+							</div>
+						{/if}
 					</div>
 				</div>
 				<div>
-					<h2 class="text-2xl font-semibold text-gray-800">{user.displayName ?? 'No Name'}</h2>
-					<p class="text-gray-500">{user.email}</p>
+					<h2 class="text-2xl font-semibold text-gray-800">{user.displayName}</h2>
 					<p class="mt-1 text-sm text-neutral-400">
-						Member since {new Date(joinDate).toLocaleDateString()}
+						Member since {new Date(user.creationTime).toLocaleDateString()}
 					</p>
 					<div class="mt-2 flex gap-3">
 						{#each badges as badge}
@@ -142,8 +121,7 @@
 					></div>
 				</div>
 				<p class="mt-1 text-sm text-gray-600">
-					{user.stats.gamesWon ?? 0} wins • {100 -
-						Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% to max
+					{user.stats.gamesWon ?? 0} wins • {Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% towards max
 				</p>
 			</div>
 

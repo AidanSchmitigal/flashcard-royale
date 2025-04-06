@@ -17,9 +17,18 @@ export default {
 		},
 	},
 	safelist: [
-		{
-			pattern: /bg-(blue|green|red|purple|orange)-400/,
-		},
+		'bg-gradient-to-r',
+		'bg-gradient-to-br',
+		'bg-gradient-to-tr',
+		'from-pink-500',
+		'via-red-500',
+		'to-yellow-500',
+		'from-blue-400',
+		'via-teal-400',
+		'to-green-400',
+		'from-indigo-700',
+		'via-purple-600',
+		'to-pink-600'
 	],
 	plugins: [backgroundPatterns],
 };
