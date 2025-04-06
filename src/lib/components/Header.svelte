@@ -1,40 +1,49 @@
 <script lang="ts">
-	import { auth } from '$lib/client/firebase';
+	import { auth, db } from '$lib/client/firebase';
 	import logoSmall from '$lib/images/logo-small.png';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { signOut } from 'firebase/auth';
 	import type { User } from 'firebase/auth';
-	import { getName } from '../client/getName'; // path may vary
+	import { getName } from '../client/getName'; // adjust if needed
+	import { doc, getDoc } from 'firebase/firestore';
 
-	const displayName = writable<string | null>(null);
 	const user = writable<User | null>(null);
+	const displayName = writable<string | null>(null);
+	const avatarColor = writable('blue'); // declare BEFORE using
+
+	// reactive class binding for avatar circle
+	$: avatarClass = `bg-${$avatarColor ?? 'blue'}-400`;
 
 	onMount(() => {
 		const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
 			user.set(currentUser);
+
 			if (currentUser) {
 				const name = await getName(currentUser.uid);
-				console.log('Fetched name:', name); // DEBUG LINE
 				displayName.set(name);
+
+				// Fetch avatarColor from Firestore if available
+				const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+				if (userDoc.exists()) {
+					const data = userDoc.data();
+					if (data.avatarColor) avatarColor.set(data.avatarColor);
+				}
 			}
 		});
 		return () => unsubscribe();
 	});
 
-
 	function handleSignOut() {
-	signOut(auth)
-		.then(() => {
-			user.set(null);
-		})
-		.catch((error) => {
-			console.error('Error signing out:', error);
-		});
-}
+		signOut(auth)
+			.then(() => {
+				user.set(null);
+			})
+			.catch((error) => {
+				console.error('Error signing out:', error);
+			});
+	}
 </script>
-
-
 
 <header
 	class="fixed top-0 right-0 left-0 z-50 flex items-center justify-between bg-white/20 px-8 py-4"
@@ -70,12 +79,21 @@
 				{#if $displayName}
 				<a
 					href="/profileDisplay"
-					class="rounded bg-blue-100 px-4 py-2 text-blue-900 font-semibold hover:bg-blue-200 transition-colors">
-					{$displayName}
+					class="flex items-center gap-2 rounded px-3 py-2 transition hover:bg-white/40"
+				>
+					<!-- Avatar Circle -->
+					<div
+						class={`h-8 w-8 flex items-center justify-center text-white text-sm font-bold rounded-full ${avatarClass}`}
+					>
+						{$displayName.charAt(0).toUpperCase()}
+					</div>
+			
+					<!-- Name -->
+					<span class="text-blue-900 font-semibold">
+						{$displayName}
+					</span>
 				</a>
-				{/if}
-			
-			
+			{/if}
 				<button
 					on:click={handleSignOut}
 					class="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"

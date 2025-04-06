@@ -118,6 +118,10 @@
 					class="text-amber-500 hover:underline">Register here</a
 				>
 			</p>
+			<p class="text-sm text-right">
+				<a href="/account/PasswordReset" class="text-blue-600 hover:underline">Forgot Password?</a>
+			  </p>
+			  
 		{/if}
 	</div>
 </div>
