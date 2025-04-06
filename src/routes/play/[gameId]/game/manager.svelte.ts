@@ -68,8 +68,10 @@ export class BattleManager {
 					gameData.deck.cards = gameData.deck.cards.map((card) => ({
 						...card,
 						// Default values if missing
-						hp: card.base_health || 100,
-						damage: card.base_dmg || 25
+						hp: typeof card.base_health === 'number' ? card.base_health : 100,
+						damage: typeof card.base_dmg === 'number' ? card.base_dmg : 25,
+						base_health: typeof card.base_health === 'number' ? card.base_health : 100,
+						base_dmg: typeof card.base_dmg === 'number' ? card.base_dmg : 25
 					}));
 				}
 
@@ -254,9 +256,18 @@ export class BattleManager {
 		const attacker = { ...this.playerHand[0] };
 		const target = { ...this.enemyHand[0] };
 
+		 // Ensure base values are valid numbers
+		const attackerHealth = typeof attacker.base_health === 'number' ? attacker.base_health : 100;
+		const attackerDamage = typeof attacker.base_dmg === 'number' ? attacker.base_dmg : 25;
+		const targetHealth = typeof target.base_health === 'number' ? target.base_health : 100;
+		const targetDamage = typeof target.base_dmg === 'number' ? target.base_dmg : 25;
+
 		// Calculate new health values
-		const newAttackerHealth = attacker.base_health - (robotValid ? target.base_dmg : 0);
-		const newTargetHealth = target.base_health - (valid ? attacker.base_dmg : 0);
+		const enemyDamage = robotValid ? targetDamage : 0;
+		const playerDamage = valid ? attackerDamage : 0;
+		
+		const newAttackerHealth = Math.max(0, attackerHealth - enemyDamage);
+		const newTargetHealth = Math.max(0, targetHealth - playerDamage);
 
 		// Update the cards in the arrays with new health values
 		this.playerHand[0] = { ...attacker, base_health: newAttackerHealth };
@@ -265,9 +276,9 @@ export class BattleManager {
 		// Log attack results
 		console.log(
 			'attack: ' +
-				(valid ? `Player deals ${attacker.base_dmg} damage` : 'Player misses') +
+				(valid ? `Player deals ${attackerDamage} damage` : 'Player misses') +
 				', ' +
-				(robotValid ? `Enemy deals ${target.base_dmg} damage` : 'Enemy misses')
+				(robotValid ? `Enemy deals ${targetDamage} damage` : 'Enemy misses')
 		);
 
 		// Return a promise that resolves when the animation is complete
@@ -292,10 +303,10 @@ export class BattleManager {
 				}
 
 				// check if player lost
-				if (this.playerHand.length === 0) {
+				if (this.playerHand.length === 0 || isNaN(this.playerHand[0].base_health)) {
 					this.gameOutcome = GameOutcome.Loss;
 				}
-				if (this.enemyHand.length === 0) {
+				if (this.enemyHand.length === 0 || isNaN(this.playerHand[0].base_health)) {
 					this.gameOutcome = GameOutcome.Win;
 				}
 				if (this.playerHand.length === 0 && this.enemyHand.length === 0) {
