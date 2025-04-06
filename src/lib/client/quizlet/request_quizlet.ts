@@ -1,7 +1,4 @@
-import { exec } from "child_process";
-import { addDoc, collection, Firestore } from "firebase/firestore";
-
-function gen_url(id: string): string {
+export function gen_url(id: string): string {
     return `https://quizlet.com/webapi/3.4/studiable-item-documents?filters%5BstudiableContainerId%5D=${id}&filters%5BstudiableContainerType%5D=1&perPage=100&page=1`
 }
 

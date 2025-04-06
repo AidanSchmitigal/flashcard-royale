@@ -1,5 +1,6 @@
 <!-- src/lib/components/ImportDeckModal.svelte -->
 <script lang="ts">
+	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 
@@ -7,6 +8,7 @@
 
 	let importMethod = 'quizlet';
 	let quizletLink = '';
+	let quizletData = '';
 	let csvContent = '';
 	let file = null;
 	let isProcessing = false;
@@ -23,13 +25,13 @@
 	}
 
 	async function handleImport() {
-		if (importMethod === 'quizlet' && !quizletLink.trim()) {
-			error = 'Please enter a valid Quizlet link';
+		if (importMethod === 'csv' && !csvContent.trim() && !file) {
+			error = 'Please paste CSV content or upload a file';
 			return;
 		}
 
-		if (importMethod === 'csv' && !csvContent.trim() && !file) {
-			error = 'Please paste CSV content or upload a file';
+		if (importMethod === 'csv') {
+			error = 'Not Implemented';
 			return;
 		}
 
@@ -37,24 +39,42 @@
 		error = '';
 
 		try {
-			// Here would go the actual import logic
-			await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulating API call
+			if (importMethod === 'quizlet') {
+				const deckJson = JSON.parse(quizletData)
+				const cards = get_cards(deckJson)
+			}
 
+			// ?
 			dispatch('import-success', {
 				method: importMethod
 				// Additional data...
 			});
 
-			onClose();
+			// onClose();
 		} catch (err) {
 			error = 'Failed to import deck. Please try again.';
 		} finally {
 			isProcessing = false;
 		}
 	}
+
+	function openQuizletUrl() {
+		let parsed
+		try {
+			parsed = parse_url(quizletLink)!
+		} catch {
+			// This doesn't trigger
+			error = 'Failed to parse'
+			return
+		}
+
+		window.open(gen_url(parsed))?.focus()
+	}
 </script>
 
 <div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="w-full max-w-md rounded-lg bg-white shadow-xl"
 		on:click|stopPropagation
@@ -99,6 +119,18 @@
 							type="text"
 							bind:value={quizletLink}
 							placeholder="https://quizlet.com/..."
+							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+						/>
+						<button
+							on:click={openQuizletUrl}
+							class="flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
+							disabled={isProcessing}
+						>Open Data</button>
+						<span class="text-sm font-medium text-gray-700">Quizlet Data</span>
+						<input
+							type="text"
+							bind:value={quizletData}
+							placeholder={"{\"response..."}
 							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
 						/>
 					</label>
