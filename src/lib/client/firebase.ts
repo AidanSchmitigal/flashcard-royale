@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, type User } from 'firebase/auth';
 import { doc, getFirestore } from 'firebase/firestore';
 import { writable } from 'svelte/store';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyAusGwxakO9YGF1s411bjrtoHQGOL1029w',
