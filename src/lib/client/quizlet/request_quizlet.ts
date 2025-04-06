@@ -16,12 +16,12 @@ export function parse_url(url: string): string | null {
 }
 
 // Would be nice to use Zod Schema
-export async function get(id: string): Promise<any | null> {
+/*export async function get(id: string): Promise<any | null> {
     try {
         const resp = await fetch(gen_url(id), {
-            "headers": {
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-                "accept-language": "en-US,en;q=0.9",
+            "headers": {*/
+//                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                /*"accept-language": "en-US,en;q=0.9",
                 "cache-control": "max-age=0",
                 "priority": "u=0, i",
                 "sec-ch-ua": "\"Chromium\";v=\"134\", \"Not:A-Brand\";v=\"24\", \"Google Chrome\";v=\"134\"",
@@ -44,9 +44,11 @@ export async function get(id: string): Promise<any | null> {
         console.log("Failed request quizlet")
         return null
     }
-}
+}*/
 
-export function get_cards(data: any): Card[] {
+export function get_cards(json: string): Card[] {
+    let data: any = JSON.parse(json)
+
     const cards: Card[] = [];
 
     for (const item in data.responses[0].models.studiableItem) {
