@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { auth, db } from '$lib/client/firebase';
 	import { createUserWithEmailAndPassword } from '@firebase/auth';
-	import { addDoc, collection } from '@firebase/firestore';
+	import { addDoc, collection, doc, setDoc } from '@firebase/firestore';
 
 	export let form: ActionData | null = null;
 
@@ -23,17 +23,15 @@
 
 		createUserWithEmailAndPassword(auth, email, password)
 			.then(async (currentUser) => {
-				await addDoc(collection(db, 'users'), {
-					id: currentUser.user.uid,
+				await setDoc(doc(db, 'users', currentUser.user.uid), {
 					name: name
 				});
 
 				window.location.assign('/');
-			})
-			.catch((error) => {
+			}) .catch((error) => {
 				const errorCode = error.code;
 				const errorMessage = error.message;
-				console.log(errorCode, errorMessage);
+				console.log(errorCode, errorMessage)
 			});
 	}
 </script>
