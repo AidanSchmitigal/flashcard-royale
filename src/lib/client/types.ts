@@ -20,6 +20,11 @@ type Deck = BaseCollection & {
 	cards: string[];
 };
 
+type QuizCard = {
+	question: string;
+	answer: string;
+};
+
 type Card = BaseCollection & {
 	deckId: string;
 	question: string;
