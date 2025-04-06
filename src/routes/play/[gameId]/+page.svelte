@@ -145,6 +145,8 @@
 	}
 </script>
 
+{JSON.stringify(playerCards)}
+
 {#if !gameOver}
 	<div class="mx-auto flex h-screen w-fit flex-col justify-center">
 		<div class="flex items-center justify-between gap-16">
