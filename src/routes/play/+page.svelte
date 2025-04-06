@@ -166,7 +166,7 @@
                             </div>
                             <div class="px-5 pb-4 flex space-x-2">
                                 <a 
-                                    href={`/game/${deck.id}`} 
+                                    href={`/play/${deck.id}`} 
                                     class="flex-1 bg-indigo-600 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-700"
                                 >
                                     Play
@@ -201,7 +201,7 @@
                             </div>
                             <div class="px-5 pb-4 flex space-x-2">
                                 <a 
-                                    href={`/game/${deck.id}`} 
+                                    href={`/play/${deck.id}`} 
                                     class="flex-1 bg-indigo-600 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-700"
                                 >
                                     Play

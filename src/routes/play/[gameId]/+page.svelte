@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { mockDeck } from '$lib/client/game/mockDeck';
-	import { createCardFromFlashcard } from '$lib/client/game/index';
-	import { BattleManager } from '$lib/client/game/manager';
-	import { validateAnswer } from '$lib/client/game/validation';
+	import { mockDeck } from './game/mockDeck';
+	import { createCardFromFlashcard } from './game/index';
+	import { BattleManager } from './game/manager';
+	import { validateAnswer } from './game/validation';
 	import { fade, fly } from 'svelte/transition';
-	import { addGameHistory, getGames } from '$lib/client/game/data';
+	import { addGameHistory, getGames } from './game/data';
 	import { auth, db } from '$lib/client/firebase';
 	import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 
@@ -128,7 +128,15 @@
 		// Process turn with the result
 		const result = battle.processTurn(correct);
 		if (result.done) {
-			addGameHistory({ deckId, moves: battle.playerHistory, time: new Date() });
+			addGameHistory({
+				id: crypto.randomUUID(),
+				ownerId: auth.currentUser?.uid || '',
+				deckId,
+				moves: battle.playerHistory,
+				time: new Date(),
+				createdAt: new Date(),
+				won: gameResult === 'victory'
+			});
 		}
 
 		logs = [result.log, ...logs];
