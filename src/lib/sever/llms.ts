@@ -87,7 +87,8 @@ export async function processFlashcards(cards: FlashCard[]): Promise<FlashCard[]
 		return difficulties;
 	} catch (err) {
 		console.error('Failed to use cards:', err);
-		return cards;
+		return err;
+		//return cards;
 	}
 }
 
