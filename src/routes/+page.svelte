@@ -1,88 +1,44 @@
 <script lang="ts">
-	// import logo from '$lib/images/battle-royale-logo.webp';
-	// import logoFallback from '$lib/images/battle-royale-logo.png';
+	// Combined imports
+	import logo from '$lib/images/logo.png';
+	import logoFallback from '$lib/images/logo.png';
+	import { goto } from '$app/navigation';
 </script>
 
 <svelte:head>
-	<title>Battle Royale - Dominate the Arena</title>
+	<title>Flashcard Royale - Learn and Compete</title>
 	<meta
 		name="description"
-		content="Drop in. Gear up. Survive the battlefield in the ultimate battle royale experience."
+		content="Drop in. Gear up. Test your knowledge in the ultimate flashcard battle royale experience."
 	/>
 </svelte:head>
 
-<section class="hero">
-	<h1>
-		<span class="logo">
-			<!-- <picture>
-				<source srcset={logo} type="image/webp" />
-				<img src={logoFallback} alt="Battle Royale Logo" />
-			</picture> -->
-		</span>
-	</h1>
+<section
+	class="flex min-h-screen flex-col items-center justify-center bg-blue-200 p-16 text-center text-blue-900"
+>
+	<div class="logo mb-4">
+		<picture>
+			<source srcset={logo} type="image/webp" />
+			<img src={logoFallback} alt="Battle Royale Logo" class="mx-auto h-100" />
+		</picture>
+	</div>
 
-	<h2 class="tagline">Drop in. Gear up. Fight to be the last one standing.</h2>
+	<h1 class="mb-4 text-5xl font-bold text-blue-900">Flashcard Royale</h1>
 
-	<div class="cta">
-		<button on:click={() => alert('Matchmaking coming soon!')}>Play Now</button>
-		<button on:click={() => alert('Check back soon!')}>Learn More</button>
+	<h2 class="mb-6 text-2xl text-blue-800">Drop in. Gear up. Fight to be the last one standing.</h2>
+
+	<div class="flex gap-4">
+		<a
+			href="/play"
+			class="rounded-lg bg-blue-700 px-6 py-3 text-base font-bold text-white transition-colors hover:bg-blue-800"
+		>
+			Play Now
+		</a>
+		<a
+			href="/leaderboard"
+			class="rounded-lg bg-blue-700 px-6 py-3 text-base font-bold text-white transition-colors hover:bg-blue-800"
+		>
+			Leaderboard
+		</a>
 	</div>
 </section>
-
-<style>
-	.hero {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
-		padding: 4rem 1rem;
-		background: linear-gradient(to bottom, #111 0%, #1a1a1a 100%);
-		color: #f0f0f0;
-		min-height: 100vh;
-	}
-
-	h1 {
-		margin-bottom: 1rem;
-	}
-
-	.logo {
-		display: block;
-		width: 80%;
-		max-width: 600px;
-		position: relative;
-	}
-
-	.logo img {
-		width: 100%;
-		height: auto;
-		display: block;
-	}
-
-	.tagline {
-		font-size: 1.5rem;
-		margin: 1.5rem 0;
-		color: #ffce00;
-	}
-
-	.cta {
-		display: flex;
-		gap: 1rem;
-	}
-
-	button {
-		padding: 0.75rem 1.5rem;
-		font-size: 1rem;
-		font-weight: bold;
-		border: none;
-		border-radius: 8px;
-		cursor: pointer;
-		background-color: #ff4444;
-		color: white;
-		transition: background 0.3s;
-	}
-
-	button:hover {
-		background-color: #cc0000;
-	}
-</style>
