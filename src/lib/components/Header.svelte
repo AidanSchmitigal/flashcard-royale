@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { auth } from '$lib/client/firebase';
+	import { getName } from '$lib/client/users';
 	import logoSmall from '$lib/images/logo-small.png';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
@@ -48,5 +49,5 @@
 				You are signed in
 			</p>
 		{/if}
-	</div>	
+	</div
 </header>
