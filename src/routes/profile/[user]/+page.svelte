@@ -4,12 +4,10 @@
 	import StatsOverview from '$lib/components/StatsOverview.svelte';
 	import { AvatarColor, AvatarColorClasses } from '$lib/client/types';
 	import type { PageProps } from './$types';
-	import { changeAvatarColor } from '$lib/client/battlepass';
+	import { changeAvatarColor, freeAvatars, unlockableAvatars } from '$lib/client/battlepass';
 
 	let { data }: PageProps = $props();
-
 	let showAvatarPicker = $state(false);
-
 	const userPromise = data.user;
 
 	const badges = [
@@ -59,16 +57,40 @@
 						</button>
 
 						{#if showAvatarPicker && $signedInUser != null && $signedInUser.uid == user.uid}
-							<div class="absolute top-28 left-0 z-10 flex gap-2 rounded bg-white p-2 shadow">
-								{#each Object.entries(AvatarColorClasses) as [color, className]}
+							<div class="absolute top-28 left-0 z-10 grid grid-cols-5 gap-2 rounded bg-white p-4 shadow">
+								<!-- Unlockable Avatars -->
+								{#each unlockableAvatars as avatar}
+									{#if user.stats.gamesWon >= avatar.requiredWins}
+										<button
+											aria-label="Change Avatar Color"
+											class={`h-10 w-10 cursor-pointer rounded-full transition hover:scale-110 ${avatar.class}`}
+											onclick={async () => {
+												user.avatarColor = avatar.id as AvatarColor;
+												await changeAvatarColor(avatar.id as AvatarColor);
+												showAvatarPicker = false;
+												window.location.reload();
+											}}
+										></button>
+									{:else}
+										<div class="relative h-10 w-10 rounded-full opacity-50 cursor-not-allowed">
+											<div class={`h-full w-full rounded-full ${avatar.class}`}></div>
+											<div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white bg-black/50 rounded-full">
+												{avatar.requiredWins}
+											</div>
+										</div>
+									{/if}
+								{/each}
+
+								<!-- Free Avatars -->
+								{#each freeAvatars as avatar}
 									<button
 										aria-label="Change Avatar Color"
-										class={`h-10 w-10 cursor-pointer rounded-full ${className} transition hover:scale-110`}
-										onclick={() => {
-											user.avatarColor = color as AvatarColor;
-											changeAvatarColor(color as AvatarColor).then(
-												() => (showAvatarPicker = false)
-											);
+										class={`h-10 w-10 cursor-pointer rounded-full transition hover:scale-110 ${avatar.class}`}
+										onclick={async () => {
+											user.avatarColor = avatar.id as AvatarColor;
+											await changeAvatarColor(avatar.id as AvatarColor);
+											showAvatarPicker = false;
+											window.location.reload();
 										}}
 									></button>
 								{/each}
@@ -99,8 +121,7 @@
 					></div>
 				</div>
 				<p class="mt-1 text-sm text-gray-600">
-					{user.stats.gamesWon ?? 0} wins • {100 -
-						Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% to max
+					{user.stats.gamesWon ?? 0} wins • {100 - Math.min((user.stats.gamesWon ?? 0) * 3.33, 100)}% to max
 				</p>
 			</div>
 

@@ -31,9 +31,21 @@ export const unlockableAvatars = [
 	}
 ];
 
+// 🆕 AvatarColorClasses – used in header, profile, etc.
+export const AvatarColorClasses: Record<string, string> = {
+	blue: 'bg-blue-400',
+	green: 'bg-green-400',
+	red: 'bg-red-400',
+	purple: 'bg-purple-400',
+	orange: 'bg-orange-400',
+	gradient1: 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500',
+	gradient2: 'bg-gradient-to-br from-blue-400 via-teal-400 to-green-400',
+	gradient3: 'bg-gradient-to-tr from-indigo-700 via-purple-600 to-pink-600'
+};
+
 export async function changeAvatarColor(color: AvatarColor) {
 	const userData = get(user);
-	if (userData == null) return;
+	if (!userData) return;
 
 	const isFree = freeAvatars.find((a) => a.id === color);
 	const isUnlocked = unlockableAvatars.find(
@@ -43,8 +55,10 @@ export async function changeAvatarColor(color: AvatarColor) {
 	if (isFree || isUnlocked) {
 		userData.avatarColor = color;
 
-		updateUser(userData.uid, {
-			avatarColor: color
-		});
+		// ✅ Persist to Firestore
+		await updateUser(userData.uid, { avatarColor: color });
+
+		// ✅ Update the local store so it's reactive
+		user.set({ ...userData, avatarColor: color });
 	}
 }
