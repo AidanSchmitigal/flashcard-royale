@@ -13,9 +13,13 @@ export default {
 			},
 			animation: {
 				wiggle: 'wiggle 1s ease-in-out infinite'
-			}
+			},
 		},
-		keyframes: {}
 	},
-	plugins: [backgroundPatterns]
+	safelist: [
+		{
+			pattern: /bg-(blue|green|red|purple|orange)-400/,
+		},
+	],
+	plugins: [backgroundPatterns],
 };

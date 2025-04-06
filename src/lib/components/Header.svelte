@@ -35,8 +35,23 @@
 			</div>
 		{:else}
 			<div class="flex items-center gap-4">
-				{#if $user.displayName}
-					<p class="font-semibold text-blue-900">Signed in as: {$user.displayName}</p>
+				{#if $displayName}
+					<a
+						href="/profileDisplay"
+						class="flex items-center gap-2 rounded px-3 py-2 transition hover:bg-white/40"
+					>
+						<!-- Avatar Circle -->
+						<div
+							class={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white ${avatarClass}`}
+						>
+							{$displayName.charAt(0).toUpperCase()}
+						</div>
+
+						<!-- Name -->
+						<span class="font-semibold text-blue-900">
+							{$displayName}
+						</span>
+					</a>
 				{/if}
 				<button
 					on:click={signOut}
