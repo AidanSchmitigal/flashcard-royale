@@ -7,14 +7,28 @@
 	import { float } from '$lib/client/transitions';
 	import GameCard from './GameCard.svelte';
 	import TimerBar from './TimerBar.svelte';
+	import { validateAnswer } from './game/validation';
 
 	const { battleManager }: { battleManager: BattleManager } = $props();
 
 	let userInput = $state('');
+	let failed = $state(false);
 	function handleSubmit(e: SubmitEvent) {
 		console.log(userInput);
 		e.preventDefault();
-		battleManager.processTurn(userInput);
+
+		battleManager.processTurn(userInput).then(() => {
+			failed = false;
+			userInput = '';
+		});
+
+		// This is a hack
+		const valid = validateAnswer(userInput, battleManager.playerHand[0].term);
+		if (!valid) {
+			userInput = battleManager.playerHand[0].term;
+		}
+
+		failed = !valid;
 	}
 </script>
 
@@ -109,6 +123,7 @@
 					<input
 						placeholder="Write your answer here..."
 						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none disabled:bg-gray-200"
+						class:border-red-500={failed}
 						bind:value={userInput}
 						disabled={battleManager.attacking}
 					/>
