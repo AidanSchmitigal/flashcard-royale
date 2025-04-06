@@ -49,12 +49,11 @@
                     fetchRecommendedDecks(db),
                     fetchUserDecks(db, userId)
                 ]);
+                loading = false;
             } else {
-                // If not logged in, just fetch recommended decks
-                await fetchRecommendedDecks(db);
-                userId = null;
+                // Redirect to login if not authenticated
+                window.location.href = '/account/login?redirect=/play';
             }
-            loading = false;
         });
     });
 
@@ -114,6 +113,20 @@
 
     function closeImportModal() {
         showImportModal = false;
+    }
+    
+    function handleImportSuccess(event) {
+        // Show a success message (optional)
+        const message = `Successfully imported ${event.detail.cardCount} cards!`;
+        console.log(message);
+        
+        // Close the modal
+        closeImportModal();
+        
+        // Reload the page to show the new deck
+        setTimeout(() => {
+            window.location.reload();
+        }, 500); // Small delay for better UX
     }
     
     function openPreview(deck: Deck) {
@@ -300,6 +313,9 @@
 
 {#if showImportModal}
     <div transition:fade={{ duration: 150 }}>
-        <ImportDeckModal onClose={closeImportModal} />
+        <ImportDeckModal 
+            onClose={closeImportModal} 
+            on:import-success={handleImportSuccess}
+        />
     </div>
 {/if}

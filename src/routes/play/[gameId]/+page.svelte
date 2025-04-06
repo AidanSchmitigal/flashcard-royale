@@ -6,6 +6,8 @@
 	import { validateAnswer } from '$lib/client/game/validation';
 	import { fade, fly } from 'svelte/transition';
 	import { addGameHistory, getGames } from '$lib/client/game/data';
+	import { auth, db } from '$lib/client/firebase';
+	import { doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 
 	let battle: BattleManager;
 	let currentCardTerm = '';
@@ -13,6 +15,10 @@
 	let userInput = '';
 	let logs: string[] = [];
 	let gameOver = false;
+	let gameResult: 'victory' | 'defeat' | 'draw' | null = null;
+	let savingResult = false;
+	let resultSaved = false;
+	let resultError = false;
 
 	// TODO
 	let deckId = '0';
@@ -83,6 +89,41 @@
 		cardTakingDamage = '';
 	}
 
+	async function updateUserGameStats(result: 'victory' | 'defeat' | 'draw') {
+		if (!auth.currentUser) {
+			console.error("Cannot update stats: User not logged in");
+			return false;
+		}
+
+		try {
+			savingResult = true;
+			const userId = auth.currentUser.uid;
+			const userRef = doc(db, 'users', userId);
+			
+			// Update the appropriate counter based on game result
+			if (result === 'victory') {
+				await updateDoc(userRef, {
+					gamesWon: increment(1)
+				});
+			} else if (result === 'defeat') {
+				await updateDoc(userRef, {
+					gamesLost: increment(1)
+				});
+			} else if (result === 'draw') {
+				await updateDoc(userRef, {
+					gamesDrawn: increment(1)
+				});
+			}
+			
+			return true;
+		} catch (error) {
+			console.error("Error updating user game stats:", error);
+			return false;
+		} finally {
+			savingResult = false;
+		}
+	}
+
 	function processTurnWithoutInput(correct: boolean) {
 		// Process turn with the result
 		const result = battle.processTurn(correct);
@@ -114,6 +155,28 @@
 
 				if (result.done) {
 					gameOver = true;
+					
+					// Determine game result
+					if (playerCards.length === 0 && enemyCards.length === 0) {
+						gameResult = 'draw';
+					} else if (playerCards.length > 0) {
+						gameResult = 'victory';
+					} else {
+						gameResult = 'defeat';
+					}
+					
+					// Save result to database
+					if (auth.currentUser) {
+						updateUserGameStats(gameResult)
+							.then(success => {
+								resultSaved = success;
+								resultError = !success;
+							})
+							.catch(err => {
+								console.error("Failed to save game result:", err);
+								resultError = true;
+							});
+					}
 				} else {
 					// Sync activated cards set with battle manager's state
 					activatedCardIds = new Set(battle.correctlyAnsweredCardIds);
@@ -258,10 +321,39 @@
 	</div>
 {:else}
 	<div class="mx-auto max-w-xl p-8 text-center">
-		<h2 class="text-3xl font-bold">{playerCards.length > 0 ? '🎉 Victory!' : '😢 Defeat!'}</h2>
+		<h2 class="text-3xl font-bold">
+			{#if gameResult === 'victory'}
+				🎉 Victory!
+			{:else if gameResult === 'defeat'}
+				😢 Defeat!
+			{:else}
+				🤝 Draw!
+			{/if}
+		</h2>
 		<p class="mt-4">
-			{playerCards.length > 0 ? 'You defeated all enemy cards!' : 'All your cards were defeated!'}
+			{#if gameResult === 'victory'}
+				You defeated all enemy cards!
+			{:else if gameResult === 'defeat'}
+				All your cards were defeated!
+			{:else}
+				Both sides were defeated simultaneously!
+			{/if}
 		</p>
+		
+		{#if auth.currentUser}
+			<div class="mt-4 text-sm">
+				{#if savingResult}
+					<p class="text-blue-600">Saving your results...</p>
+				{:else if resultSaved}
+					<p class="text-green-600">Your results have been saved!</p>
+				{:else if resultError}
+					<p class="text-red-600">Failed to save results to your profile</p>
+				{:else if !auth.currentUser}
+					<p class="text-gray-600">Sign in to save your game results</p>
+				{/if}
+			</div>
+		{/if}
+		
 		<button
 			class="mt-8 rounded bg-blue-600 px-4 py-2 text-white"
 			on:click={() => (window.location.href = '/')}
