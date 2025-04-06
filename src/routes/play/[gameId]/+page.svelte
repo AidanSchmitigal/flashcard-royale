@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { mockDeck } from '$lib/game/mockDeck';
-    import { createCardFromFlashcard } from '$lib/game/index';
-    import { BattleManager } from '$lib/game/manager';
-    import { validateAnswer } from '$lib/game/validation';
+    import { mockDeck } from '$lib/client/game/mockDeck';
+    import { createCardFromFlashcard } from '$lib/client/game/index';
+    import { BattleManager } from '$lib/client/game/manager';
+    import { validateAnswer } from '$lib/client/game/validation';
     import { fade, fly } from 'svelte/transition';
 
     let battle: BattleManager;
