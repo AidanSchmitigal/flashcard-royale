@@ -11,21 +11,39 @@
 		getDocs,
 		setDoc,
 		serverTimestamp,
-		doc,
-		deleteDoc
+		doc
 	} from 'firebase/firestore';
 	import RecommendedDeckCard from '$lib/components/RecommendedDeckCard.svelte';
 	import ImportDeckModal from '$lib/components/ImportDeckModal.svelte';
-	import { app, db, user } from '$lib/client/firebase';
+	import { app } from '$lib/client/firebase';
 	import { type Deck, type Card, type Game, GameState, GameOutcome } from './[gameId]/game';
 
+	let recommendedDecks: Deck[] = [];
+	let userDecks: Deck[] = [];
 	let showImportModal = false;
+	let userId: string | null = null;
+	let loading = true;
 
+	// Preview functionality
 	let showPreview = false;
 	let previewDeck: Deck | null = null;
 
 	onMount(async () => {
-		if (user == null) window.location.href = '/account/login?redirect=/play';
+		const auth = getAuth(app);
+		const db = getFirestore(app);
+
+		// Listen for auth state changes
+		onAuthStateChanged(auth, async (user) => {
+			if (user) {
+				userId = user.uid;
+				// Fetch both types of decks once we have the user ID
+				await Promise.all([fetchRecommendedDecks(db), fetchUserDecks(db, userId)]);
+				loading = false;
+			} else {
+				// Redirect to login if not authenticated
+				window.location.href = '/account/login?redirect=/play';
+			}
+		});
 	});
 
 	async function fetchRecommendedDecks(db: any) {
@@ -33,7 +51,7 @@
 			const q = query(collection(db, 'decks'), where('createdBy', '==', '0'));
 
 			const querySnapshot = await getDocs(q);
-			return querySnapshot.docs.map((doc) => {
+			recommendedDecks = querySnapshot.docs.map((doc) => {
 				const data = doc.data();
 				return {
 					id: doc.id,
@@ -46,17 +64,16 @@
 			});
 		} catch (error) {
 			console.error('Error fetching recommended decks:', error);
-			return [];
+			recommendedDecks = [];
 		}
 	}
 
-	async function fetchUserDecks(db: any) {
-		if (!$user) return [];
+	async function fetchUserDecks(db: any, uid: string) {
 		try {
-			const q = query(collection(db, 'decks'), where('createdBy', '==', $user.uid));
+			const q = query(collection(db, 'decks'), where('createdBy', '==', uid));
 
 			const querySnapshot = await getDocs(q);
-			return querySnapshot.docs.map((doc) => {
+			userDecks = querySnapshot.docs.map((doc) => {
 				const data = doc.data();
 				return {
 					id: doc.id,
@@ -69,7 +86,7 @@
 			});
 		} catch (error) {
 			console.error('Error fetching user decks:', error);
-			return [];
+			userDecks = [];
 		}
 	}
 
@@ -101,8 +118,9 @@
 	}
 
 	function deleteDeck(deck: Deck) {
-		getDocs(query(collection(db, 'decks'), where(deck.id, '==', 'id'))).then((resp) => {
-			deleteDoc(resp.docs[0].ref).then(() => fetchUserDecks(db));
+		console.log(deck.id);
+		getDocs(query(collection(db, 'decks'), where('id', '==', deck.id))).then((resp) => {
+			deleteDoc(resp.docs[0].ref).then(() => window.location.reload());
 		});
 	}
 
@@ -112,16 +130,17 @@
 	}
 
 	async function createAndPlayGame(deck: Deck) {
-		if (!$user) return;
 		try {
 			const db = getFirestore(app);
+			const gamesCollection = collection(db, 'games');
 
+			// Create new Game object
 			const gameData: Game = {
 				id: uuidv4(),
 				deck: deck,
 				createdAt: new Date(),
-				createdBy: $user.uid,
-				player1: $user.uid,
+				createdBy: userId,
+				player1: userId,
 				player2: null,
 				gameState: GameState.Loading,
 				player1Hand: null,
@@ -129,8 +148,11 @@
 				roundHistory: [],
 				roundNumber: 0
 			};
+
+			// Add to Firestore with uuid
 			await setDoc(doc(db, 'games', gameData.id), gameData);
 
+			// Navigate to the game page
 			window.location.href = `/play/${gameData.id}`;
 		} catch (error) {
 			console.error('Error creating game:', error);
@@ -140,8 +162,16 @@
 </script>
 
 <div class="mx-auto mt-16 max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	{#await fetchUserDecks(db) then userDecks}
-		{#if $user && $user.uid && userDecks.length > 0}
+	{#if loading}
+		<div class="flex items-center justify-center py-16">
+			<div class="animate-pulse text-center">
+				<div class="mx-auto mb-4 h-8 w-56 rounded bg-slate-200"></div>
+				<div class="mx-auto h-32 w-full max-w-md rounded bg-slate-200"></div>
+			</div>
+		</div>
+	{:else}
+		<!-- User's Decks Section -->
+		{#if userId && userDecks.length > 0}
 			<section class="mb-12">
 				<div class="mb-4 flex items-center justify-between">
 					<h2 class="text-2xl font-semibold text-neutral-800">Your Decks</h2>
@@ -149,30 +179,7 @@
 
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each userDecks as deck}
-						<div
-							class="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md"
-						>
-							<!-- Delete Button -->
-							<!-- svelte-ignore a11y_consider_explicit_label -->
-							<button
-								on:click={() => deleteDeck(deck)}
-								class="absolute top-2 right-2 rounded-full bg-red-600 p-2 text-white hover:bg-red-700"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-3 w-3"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M6 18L18 6M6 6l12 12"
-									/>
-								</svg>
-							</button>
+						<div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
 							<div class="p-5">
 								<h3 class="text-lg font-semibold text-neutral-900">{deck.title}</h3>
 								<p class="text-sm text-neutral-500">{deck.cardCount} cards</p>
@@ -196,16 +203,14 @@
 				</div>
 			</section>
 		{/if}
-	{/await}
 
-	<!-- Recommended Decks Section -->
-	<section class="mb-12">
-		<div class="mb-4 flex items-center justify-between">
-			<h2 class="text-2xl font-semibold text-neutral-800">Recommended Decks</h2>
-			<button class="font-medium text-indigo-600 hover:text-indigo-800">Refresh</button>
-		</div>
+		<!-- Recommended Decks Section -->
+		<section class="mb-12">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-2xl font-semibold text-neutral-800">Recommended Decks</h2>
+				<button class="font-medium text-indigo-600 hover:text-indigo-800">Refresh</button>
+			</div>
 
-		{#await fetchRecommendedDecks(db) then recommendedDecks}
 			{#if recommendedDecks.length > 0}
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{#each recommendedDecks as deck}
@@ -236,46 +241,46 @@
 					<p class="text-gray-500">No recommended decks available</p>
 				</div>
 			{/if}
-		{/await}
-	</section>
+		</section>
 
-	<!-- Create/Import New Deck Section -->
-	<section>
-		<h2 class="mb-4 text-2xl font-semibold text-gray-800">Import New Deck</h2>
-		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				<!-- Quizlet Import -->
-				<button
-					on:click={openImportModal}
-					class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
-					data-import-type="quizlet"
-				>
-					<svg class="mb-2 h-10 w-10 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-						<path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"
-						></path>
-					</svg>
-					<span class="text-lg font-medium text-gray-900">Quizlet Link</span>
-					<p class="mt-1 text-sm text-gray-500">Import from existing Quizlet deck</p>
-				</button>
+		<!-- Create/Import New Deck Section -->
+		<section>
+			<h2 class="mb-4 text-2xl font-semibold text-gray-800">Import New Deck</h2>
+			<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<!-- Quizlet Import -->
+					<button
+						on:click={openImportModal}
+						class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
+						data-import-type="quizlet"
+					>
+						<svg class="mb-2 h-10 w-10 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+							<path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"
+							></path>
+						</svg>
+						<span class="text-lg font-medium text-gray-900">Quizlet Link</span>
+						<p class="mt-1 text-sm text-gray-500">Import from existing Quizlet deck</p>
+					</button>
 
-				<!-- Create New -->
-				<button
-					on:click={() => (window.location.href = '/create')}
-					class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
-				>
-					<svg class="mb-2 h-10 w-10 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
-					<span class="text-lg font-medium text-gray-900">Create New</span>
-					<p class="mt-1 text-sm text-gray-500">Build a custom deck from scratch</p>
-				</button>
+					<!-- Create New -->
+					<button
+						on:click={() => (window.location.href = '/create')}
+						class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
+					>
+						<svg class="mb-2 h-10 w-10 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+							<path
+								fill-rule="evenodd"
+								d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+								clip-rule="evenodd"
+							></path>
+						</svg>
+						<span class="text-lg font-medium text-gray-900">Create New</span>
+						<p class="mt-1 text-sm text-gray-500">Build a custom deck from scratch</p>
+					</button>
+				</div>
 			</div>
-		</div>
-	</section>
+		</section>
+	{/if}
 </div>
 
 <!-- Card Preview Modal -->
