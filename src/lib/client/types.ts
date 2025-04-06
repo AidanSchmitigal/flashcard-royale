@@ -1,6 +1,6 @@
 import { type User as FirebaseUser } from 'firebase/auth';
 
-enum AvatarColor {
+export enum AvatarColor {
 	Blue = 'blue',
 	Green = 'green',
 	Red = 'red',
@@ -8,17 +8,16 @@ enum AvatarColor {
 	Orange = 'orange'
 }
 
-const AvatarColorClasses: Record<string, string> = {
-	blue: 'bg-blue-400',
-	green: 'bg-green-400',
-	red: 'bg-red-400',
-	purple: 'bg-purple-400',
-	orange: 'bg-orange-400'
+export const AvatarColorClasses: Record<AvatarColor, string> = {
+	[AvatarColor.Blue]: 'bg-blue-400',
+	[AvatarColor.Green]: 'bg-green-400',
+	[AvatarColor.Red]: 'bg-red-400',
+	[AvatarColor.Purple]: 'bg-purple-400',
+	[AvatarColor.Orange]: 'bg-orange-400'
 };
 
 export type UserData = {
 	avatarColor: AvatarColor;
-	username: string;
 	badges: Badge[];
 	stats: Stats;
 };

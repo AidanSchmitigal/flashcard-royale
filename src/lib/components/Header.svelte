@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth, db, user as user2 } from '$lib/client/firebase';
+	import { auth, db, user } from '$lib/client/firebase';
 	import logoSmall from '$lib/images/logo-small.png';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
@@ -8,46 +8,45 @@
 	import { getName } from '../client/getName'; // adjust if needed
 	import { doc, getDoc } from 'firebase/firestore';
 
-	const user = writable<User | null>(null);
-	const displayName = writable<string | null>(null);
 	const avatarColor = writable('blue'); // declare BEFORE using
 
 	// reactive class binding for avatar circle
 	const freeAvatars = [
-	{ id: 'blue', class: 'bg-blue-400' },
-	{ id: 'green', class: 'bg-green-400' },
-	{ id: 'red', class: 'bg-red-400' },
-	{ id: 'purple', class: 'bg-purple-400' },
-	{ id: 'orange', class: 'bg-orange-400' }
-];
+		{ id: 'blue', class: 'bg-blue-400' },
+		{ id: 'green', class: 'bg-green-400' },
+		{ id: 'red', class: 'bg-red-400' },
+		{ id: 'purple', class: 'bg-purple-400' },
+		{ id: 'orange', class: 'bg-orange-400' }
+	];
 
-const unlockableAvatars = [
-	{ id: 'gradient1', class: 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500' },
-	{ id: 'gradient2', class: 'bg-gradient-to-br from-blue-400 via-teal-400 to-green-400' },
-	{ id: 'gradient3', class: 'bg-gradient-to-tr from-indigo-700 via-purple-600 to-pink-600' }
-];
+	const unlockableAvatars = [
+		{ id: 'gradient1', class: 'bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500' },
+		{ id: 'gradient2', class: 'bg-gradient-to-br from-blue-400 via-teal-400 to-green-400' },
+		{ id: 'gradient3', class: 'bg-gradient-to-tr from-indigo-700 via-purple-600 to-pink-600' }
+	];
 
-$: avatarClass =
-	[...freeAvatars, ...unlockableAvatars].find(a => a.id === $avatarColor)?.class ?? 'bg-blue-400';
+	$: avatarClass =
+		[...freeAvatars, ...unlockableAvatars].find((a) => a.id === $avatarColor)?.class ??
+		'bg-blue-400';
 
-	onMount(() => {
-		const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-			user.set(currentUser);
+	// onMount(() => {
+	// 	const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+	// 		user.set(currentUser);
 
-			if (currentUser) {
-				const name = await getName(currentUser.uid);
-				displayName.set(name);
+	// 		if (currentUser) {
+	// 			const name = await getName(currentUser.uid);
+	// 			displayName.set(name);
 
-				// Fetch avatarColor from Firestore if available
-				const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-				if (userDoc.exists()) {
-					const data = userDoc.data();
-					if (data.avatarColor) avatarColor.set(data.avatarColor);
-				}
-			}
-		});
-		return () => unsubscribe();
-	});
+	// 			// Fetch avatarColor from Firestore if available
+	// 			const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+	// 			if (userDoc.exists()) {
+	// 				const data = userDoc.data();
+	// 				if (data.avatarColor) avatarColor.set(data.avatarColor);
+	// 			}
+	// 		}
+	// 	});
+	// 	return () => unsubscribe();
+	// });
 
 	function handleSignOut() {
 		signOut(auth)
@@ -91,21 +90,21 @@ $: avatarClass =
 			</div>
 		{:else}
 			<div class="flex items-center gap-4">
-				{#if $displayName}
+				{#if $user.displayName}
 					<a
-						href="/profileD/"
+						href="/profile/{$user.uid}"
 						class="flex items-center gap-2 rounded px-3 py-2 transition hover:bg-white/40"
 					>
 						<!-- Avatar Circle -->
 						<div
 							class={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white ${avatarClass}`}
 						>
-							{$displayName.charAt(0).toUpperCase()}
+							{$user.displayName.charAt(0).toUpperCase()}
 						</div>
 
 						<!-- Name -->
 						<span class="font-semibold text-blue-900">
-							{$displayName}
+							{$user.displayName}
 						</span>
 					</a>
 				{/if}

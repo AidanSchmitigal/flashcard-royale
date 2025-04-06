@@ -1,23 +1,18 @@
 <script lang="ts">
-	import type { ActionData } from './$types';
 	import { page } from '$app/state';
 	import { auth, createNewUser, db } from '$lib/client/firebase';
-	import { createUserWithEmailAndPassword } from '@firebase/auth';
-	import { addDoc, collection, doc, setDoc } from '@firebase/firestore';
-	import { updateProfile } from 'firebase/auth';
 
-	export let form: ActionData | null = null;
-
-	let name = form?.name ?? '';
-	let email = form?.email ?? '';
-	let password = '';
-	let passwordConfirm = '';
+	let name = $state('');
+	let email = $state('');
+	let password = $state('');
+	let passwordConfirm = $state('');
 	let submitButton: HTMLButtonElement;
-	let loginError: string = ''; // NEW: for displaying login errors
+	let loginError: string = $state(''); // NEW: for displaying login errors
 
-	$: firstName =
+	let firstName = $derived(
 		name.toString().split(' ')[0].slice(0, 1).toUpperCase() +
-		name.toString().split(' ')[0].slice(1).toLowerCase();
+			name.toString().split(' ')[0].slice(1).toLowerCase()
+	);
 	const redirect = page.url.searchParams.get('redirect');
 
 	function register() {
@@ -60,9 +55,6 @@
 			<p class="mb-4 text-red-500">{loginError}</p>
 		{/if}
 		<form data-form-type="register">
-			{#if form}
-				<p class="mb-4 whitespace-break-spaces text-red-500">{form.message}</p>
-			{/if}
 			<label for="name" class="mb-2 block">Display Name</label>
 			<input
 				bind:value={name}
@@ -80,7 +72,7 @@
 			<label for="email" class="mb-2 block">Email</label>
 			<input
 				bind:value={email}
-				on:input={(event) =>
+				oninput={(event) =>
 					event.currentTarget.value.length > 5 ? event.currentTarget.reportValidity() : null}
 				required
 				type="email"
@@ -130,7 +122,7 @@
 			>
 			<button
 				bind:this={submitButton}
-				on:click={() => register()}
+				onclick={() => register()}
 				class="group flex items-center rounded bg-amber-500 px-4 py-2 font-bold text-white hover:bg-amber-700 disabled:bg-gray-400"
 			>
 				<svg
