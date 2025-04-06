@@ -105,16 +105,6 @@
 			</div>
 
 			<StatsOverview stats={user.stats} />
-
-			<div class="flex flex-col gap-4">
-				{#if games.length === 0}
-					<p class="text-neutral-400">No games played yet.</p>
-				{:else}
-					{#each games as game}
-						<GameHistoryCard {game} />
-					{/each}
-				{/if}
-			</div>
 		</div>
 	{/if}
 {/await}
