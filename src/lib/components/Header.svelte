@@ -16,7 +16,7 @@
     </div>
 
     <div>
-        {#if auth.currentUser != null}
+        {#if auth.currentUser == null}
         <a href="/account/login" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition-colors">
             Sign In
         </a>
