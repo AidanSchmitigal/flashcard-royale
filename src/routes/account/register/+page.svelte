@@ -12,6 +12,7 @@
 	let password = '';
 	let passwordConfirm = '';
 	let submitButton: HTMLButtonElement;
+	let loginError: string = ''; // NEW: for displaying login errors
 
 	$: firstName =
 		name.toString().split(' ')[0].slice(0, 1).toUpperCase() +
@@ -19,21 +20,38 @@
 	const redirect = page.url.searchParams.get('redirect');
 
 	function register() {
-		submitButton.disabled = true;
+	loginError = ''; // reset any previous error
 
-		createUserWithEmailAndPassword(auth, email, password)
-			.then(async (currentUser) => {
-				await setDoc(doc(db, 'users', currentUser.user.uid), {
-					name: name
-				});
-
-				window.location.assign('/');
-			}) .catch((error) => {
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				console.log(errorCode, errorMessage)
-			});
+	if (password !== passwordConfirm) {
+		loginError = 'Passwords do not match.';
+		return;
 	}
+
+	if (password.length < 6) {
+		loginError = 'Password must be at least 6 characters.';
+		return;
+	}
+
+	submitButton.disabled = true;
+
+	createUserWithEmailAndPassword(auth, email, password)
+		.then(async (currentUser) => {
+			await setDoc(doc(db, 'users', currentUser.user.uid), {
+				name: name
+			});
+			window.location.assign('/');
+		})
+		.catch((error) => {
+			const errorCode = error.code;
+			const errorMessage = error.message;
+
+			loginError = errorMessage; // this now always shows in the UI
+			console.log(errorCode, errorMessage);
+
+			submitButton.disabled = false;
+		});
+}
+
 </script>
 
 <svelte:head>
@@ -46,6 +64,9 @@
 			<span class="inline-block transition-transform group-hover:-translate-x-1">←</span>&nbsp;Back
 		</a>
 		<h1 class="mb-4 text-3xl font-bold">Register</h1>
+		{#if loginError}
+		<p class="mb-4 text-red-500">{loginError}</p>
+		{/if}
 		<form data-form-type="register">
 			{#if form}
 				<p class="mb-4 whitespace-break-spaces text-red-500">{form.message}</p>

@@ -2,32 +2,39 @@
 	import { page } from '$app/state';
 	import { signInWithEmailAndPassword } from 'firebase/auth';
 	import type { ActionData } from './$types';
+	import { auth } from '$lib/client/firebase';
 
 	export let form: ActionData | null = null;
-
-	import { auth } from '$lib/client/firebase';
 
 	let email = form?.email ?? '';
 	let password = '';
 	let submitButton: HTMLButtonElement;
+	let loginError: string = ''; // NEW: for displaying login errors
 
 	const redirect = page.url.searchParams.get('redirect');
 
 	function login() {
-		console.log('asdf');
+		loginError = ''; // reset any previous error
 		submitButton.disabled = true;
 
 		signInWithEmailAndPassword(auth, email, password)
-			.then(async (_) => {
+			.then(() => {
 				window.location.assign('/');
 			})
 			.catch((error) => {
 				const errorCode = error.code;
 				const errorMessage = error.message;
+
+				// Trigger reactivity correctly:
+				loginError = error.message; // this should already work
+
 				console.log(errorCode, errorMessage);
+				submitButton.disabled = false;
 			});
+
 	}
 </script>
+
 
 <svelte:head>
 	<title>Login | Flashcard Royale</title>
@@ -48,6 +55,9 @@
 				>&nbsp;Back
 			</a>
 			<h1 class="mb-4 text-3xl font-bold">Login</h1>
+			{#if loginError}
+				<p class="mb-4 text-red-500">{loginError}</p>
+			{/if}
 			<form data-form-type="login">
 				{#if form}
 					<p class="mb-4 text-red-500">{form.message}</p>
