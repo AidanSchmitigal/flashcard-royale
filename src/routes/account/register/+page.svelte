@@ -45,7 +45,10 @@
 
 				await setDoc(doc(db, 'users', currentUser.user.uid), {
 					name: name,
-					gamesWon: 0
+					avatarColor: "orange",
+					gamesWon: 0,
+					gamesLost: 0,
+					gamesDrawn: 0
 				});
 
 				window.location.assign('/');
