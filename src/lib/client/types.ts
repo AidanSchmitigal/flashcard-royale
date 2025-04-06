@@ -38,12 +38,12 @@ export type Badge = {
 	description: string;
 };
 
-export type Game = {
-	result: string;
-	gameName: string;
-	playedAt: string;
-	score: string;
-	playTime: string;
-	xpEarned: string;
-	achievements: string;
-};
+// export type Game = {
+// 	result: string;
+// 	gameName: string;
+// 	playedAt: string;
+// 	score: string;
+// 	playTime: string;
+// 	xpEarned: string;
+// 	achievements: string;
+// };

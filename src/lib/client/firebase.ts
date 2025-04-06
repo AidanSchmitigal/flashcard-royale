@@ -29,6 +29,7 @@ import type {
 } from 'firebase/firestore';
 import { writable } from 'svelte/store';
 import type { User, UserData } from './types';
+import type { Game } from '../../routes/play/[gameId]/game';
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyAusGwxakO9YGF1s411bjrtoHQGOL1029w',
@@ -66,11 +67,13 @@ export const converter = <T>(): FirestoreDataConverter<T> => ({
 });
 
 export const collections = {
-	users: typedCollection<User>(db, 'users')
+	users: typedCollection<User>(db, 'users'),
+	games: typedCollection<Game>(db, 'games')
 };
 
 export const docs = {
-	user: (id: string) => typedDoc<User>(db, `users/${id}`)
+	user: (id: string) => typedDoc<User>(db, `users/${id}`),
+	game: (id: string) => typedDoc<Game>(db, `games/${id}`)
 };
 
 export async function getById<T>(ref: DocumentReference<T>): Promise<T | null> {
