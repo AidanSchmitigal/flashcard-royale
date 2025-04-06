@@ -168,7 +168,6 @@
 			<section class="mb-12">
 				<div class="mb-4 flex items-center justify-between">
 					<h2 class="text-2xl font-semibold text-neutral-800">Your Decks</h2>
-					<a href="/decks" class="font-medium text-indigo-600 hover:text-indigo-800">View All</a>
 				</div>
 
 				<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
