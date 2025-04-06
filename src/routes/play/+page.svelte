@@ -101,8 +101,9 @@
 	}
 
 	function deleteDeck(deck: Deck) {
-		getDocs(query(collection(db, 'decks'), where(deck.id, '==', 'id'))).then((resp) => {
-			deleteDoc(resp.docs[0].ref).then(() => fetchUserDecks(db));
+		console.log(deck.id)
+		getDocs(query(collection(db, 'decks'), where('id', '==', deck.id))).then((resp) => {
+			deleteDoc(resp.docs[0].ref).then(() => window.location.reload());
 		});
 	}
 

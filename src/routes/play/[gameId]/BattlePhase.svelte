@@ -122,7 +122,7 @@
 				<div class="flex flex-grow flex-col">
 					<input
 						placeholder="Write your answer here..."
-						class="w-full flex-grow border-0 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none disabled:bg-gray-200"
+						class="w-full flex-grow border-3 bg-amber-50/20 px-4 py-2 text-center text-lg focus:bg-amber-50/40 focus:outline-none disabled:bg-gray-200"
 						class:border-red-500={failed}
 						bind:value={userInput}
 						disabled={battleManager.attacking}
