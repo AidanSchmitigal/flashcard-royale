@@ -5,6 +5,7 @@
     import { BattleManager } from '$lib/client/game/manager';
     import { validateAnswer } from '$lib/client/game/validation';
     import { fade, fly } from 'svelte/transition';
+	import { addGameHistory, getGames } from '$lib/client/game/data';
 
     let battle: BattleManager;
     let currentCardTerm = '';
@@ -12,6 +13,9 @@
     let userInput = '';
     let logs: string[] = [];
     let gameOver = false;
+
+    // TODO
+    let deckId = '0'
     
     // Track active cards in battle
     let playerCards: any[] = [];
@@ -37,7 +41,17 @@
         // Initialize battle
         playerCards = mockDeck.map((c) => createCardFromFlashcard(c.term, c.definition, c.health, c.damage));
         enemyCards = mockDeck.map((c) => createCardFromFlashcard(c.term, c.definition, c.health, c.damage));
-        battle = new BattleManager(playerCards, enemyCards);
+
+        // TODO
+        /*
+        const games = await getGames(deckId);
+        const history: boolean[] = []
+        if (games.length > 0) {
+            history = games.moves
+        }
+        */
+        const history: boolean[] = []
+        battle = new BattleManager(playerCards, enemyCards, history);
         
         // Sync our local arrays with battle manager's state
         playerCards = battle.getPlayerCards();
@@ -49,7 +63,7 @@
     function loadCurrentPrompt() {
         const attacker = battle.getCurrentAttacker();
         
-        // Skip prompt if the card was already answered correctly
+        // Skip prompt if the card was already answered correctlyprocessTurn
         if (battle.isCardAnsweredCorrectly(attacker.id)) {
             // Auto-process the turn for correctly answered cards
             processTurnWithoutInput(true);
@@ -66,45 +80,49 @@
     }
     
     function processTurnWithoutInput(correct: boolean) {
-    // Process turn with the result
-    const result = battle.processTurn(correct);
-    logs = [result.log, ...logs];
-    
-    // Update our local arrays with battle manager's state IMMEDIATELY
-    playerCards = battle.getPlayerCards();
-    enemyCards = battle.getEnemyCards();
-    
-    // Mark the target card for damage animation
-    if (correct && enemyCards.length > 0) {
-        cardTakingDamage = enemyCards[0].id; // Set to the current target's ID
-    }
-    
-    // Mark player card for damage animation if it took damage
-    if (result.playerTookDamage) {
-        playerTakingDamage = true;
-    }
-    
-    // After a short delay, clean up animations and move to next prompt or end game
-    setTimeout(() => {
-        playerTakingDamage = false;
-        cardTakingDamage = '';
-        
+        // Process turn with the result
+        const result = battle.processTurn(correct);
         if (result.done) {
-            gameOver = true;
-        } else {
-            // Sync activated cards set with battle manager's state
-            activatedCardIds = new Set(battle.correctlyAnsweredCardIds);
-            
-            if (result.needNewPrompt) {
-                // Player needs to answer for the new card
-                loadCurrentPrompt();
-            } else {
-                // Continue with the next turn immediately if no new prompt needed
-                processTurnWithoutInput(true);
-            }
+            addGameHistory({ deckId, moves: battle.playerHistory, time: new Date() });
         }
-    }, correct ? 2000 : 2000); // Shorter delay for auto-attacks
-}
+
+        logs = [result.log, ...logs];
+        
+        // Update our local arrays with battle manager's state IMMEDIATELY
+        playerCards = battle.getPlayerCards();
+        enemyCards = battle.getEnemyCards();
+        
+        // Mark the target card for damage animation
+        if (correct && enemyCards.length > 0) {
+            cardTakingDamage = enemyCards[0].id; // Set to the current target's ID
+        }
+        
+        // Mark player card for damage animation if it took damage
+        if (result.playerTookDamage) {
+            playerTakingDamage = true;
+        }
+        
+        // After a short delay, clean up animations and move to next prompt or end game
+        setTimeout(() => {
+            playerTakingDamage = false;
+            cardTakingDamage = '';
+            
+            if (result.done) {
+                gameOver = true;
+            } else {
+                // Sync activated cards set with battle manager's state
+                activatedCardIds = new Set(battle.correctlyAnsweredCardIds);
+                
+                if (result.needNewPrompt) {
+                    // Player needs to answer for the new card
+                    loadCurrentPrompt();
+                } else {
+                    // Continue with the next turn immediately if no new prompt needed
+                    processTurnWithoutInput(true);
+                }
+            }
+        }, correct ? 2000 : 2000); // Shorter delay for auto-attacks // Bruh
+    }
 
     function handleSubmit() {
         // Validate the answer and show feedback

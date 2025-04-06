@@ -1,13 +1,18 @@
 import type { Card } from './index';
 
+// TODO: add enemy attacks array in an input
 export class BattleManager {
 	playerQueue: Card[];
 	enemyQueue: Card[];
+	playerHistory: boolean[];
+	enemyFuture: boolean[];
 	correctlyAnsweredCardIds: Set<string | number>;
 
-	constructor(playerCards: Card[], enemyCards: Card[]) {
+	constructor(playerCards: Card[], enemyCards: Card[], enemyFuture: boolean[]) {
 		this.playerQueue = [...playerCards];
 		this.enemyQueue = [...enemyCards];
+		this.enemyFuture = [...enemyFuture];
+		this.playerHistory = [];
 		this.correctlyAnsweredCardIds = new Set();
 	}
 
@@ -39,6 +44,8 @@ export class BattleManager {
 		let playerTookDamage = false;
 		let playerDamageAmount = 0;
 		const target = this.getCurrentDefender();
+
+		this.playerHistory.push(correct);
 		
 		// Process player attack
 		console.log("Processing player attack...");
@@ -56,8 +63,16 @@ export class BattleManager {
 		}
 		console.log("Player attack processed.");
 		console.log("Processing enemy attack...");
-		// Process enemy attack: 80% chance to hit
-		if (Math.random() < 0.8) {
+		// Process enemy attack: 50% chance to hit by default
+		let enemyHit = false;
+		if (this.enemyFuture.length > 0) {
+			enemyHit = this.enemyFuture[0];
+			this.enemyFuture.shift();
+		} else {
+			enemyHit = Math.random() < 0.5;
+		}
+
+		if (enemyHit) {
 			let damage = target.damage;
 			attacker.hp -= damage;
 			log = `Enemy: ${target.term} attacks Player: ${attacker.term} for ${damage} damage!`;

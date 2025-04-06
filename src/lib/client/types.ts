@@ -14,6 +14,12 @@ type Game = BaseCollection & {
 	deckId: string;
 };
 
+type GameHistory ={
+	deckId: string;
+	moves: boolean[];
+	time: Date;
+};
+
 type Deck = BaseCollection & {
 	ownersIds: string[];
 	cards: Card[];

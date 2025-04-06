@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { db } from "../firebase";
 
 const games = collection(db, 'games');
@@ -17,7 +17,17 @@ export async function getDeck(ownerId: string): Promise<Deck[] | null> {
     }
 }
 
-export async function getGame(ownerId: string) {
+export async function getGames(deckId: string) {
+    try {
+        const docs = (await getDocs(query(games, where(deckId, '==', 'deckId')))).docs
+        return docs.map((doc) => doc.data() as GameHistory)
+    } catch {
+        return null;
+    }
+}
+
+export async function addGameHistory(history: GameHistory) {
+    await addDoc(games, history)
 }
 
 // Should move file
