@@ -1,13 +1,17 @@
 <!-- src/lib/components/ImportDeckModal.svelte -->
 <script lang="ts">
+	import { auth } from '$lib/client/firebase';
+	import { createDeck } from '$lib/client/game/data';
+	import { gen_url, get_cards, parse_url } from '$lib/client/quizlet/request_quizlet';
 	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { v4 as uuidv4 } from 'uuid';
 
 	export let onClose;
 
 	let importMethod = 'quizlet';
 	let quizletLink = '';
-	let csvContent = '';
+	let quizletData = '';
 	let file = null;
 	let isProcessing = false;
 	let error = '';
@@ -22,14 +26,19 @@
 		}
 	}
 
-	async function handleImport() {
-		if (importMethod === 'quizlet' && !quizletLink.trim()) {
-			error = 'Please enter a valid Quizlet link';
-			return;
-		}
+	async function processFlashcards(cardsJson: any): Promise<Card[]> {
+		const resp = await fetch('/api/process_cards', {
+			method: "POST",
+			body: JSON.stringify(cardsJson),
+		})
 
-		if (importMethod === 'csv' && !csvContent.trim() && !file) {
-			error = 'Please paste CSV content or upload a file';
+		const json = await resp.json()
+		return json as Card[]
+	}
+
+	async function handleImport() {
+		if (auth.currentUser == null) {
+			error = 'Please sign in';
 			return;
 		}
 
@@ -37,24 +46,43 @@
 		error = '';
 
 		try {
-			// Here would go the actual import logic
-			await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulating API call
+			if (importMethod === 'quizlet') {
+				const cardsJson = get_cards(quizletData)
+				const cards = await processFlashcards(cardsJson)
+				createDeck({ id: uuidv4(), ownersIds: auth.currentUser ? [auth.currentUser.uid] : [], cards: cards })
+			}
 
+			// ?
 			dispatch('import-success', {
 				method: importMethod
 				// Additional data...
 			});
 
-			onClose();
+			// onClose();
 		} catch (err) {
 			error = 'Failed to import deck. Please try again.';
 		} finally {
 			isProcessing = false;
 		}
 	}
+
+	function openQuizletUrl() {
+		let parsed
+		try {
+			parsed = parse_url(quizletLink)!
+		} catch {
+			// This doesn't trigger
+			error = 'Failed to parse'
+			return
+		}
+
+		window.open(gen_url(parsed))?.focus()
+	}
 </script>
 
 <div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="w-full max-w-md rounded-lg bg-white shadow-xl"
 		on:click|stopPropagation
@@ -83,67 +111,34 @@
 				>
 					Quizlet Link
 				</button>
-				<button
-					class={`px-4 py-2 font-medium ${importMethod === 'csv' ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
-					on:click={() => (importMethod = 'csv')}
-				>
-					CSV/Text
-				</button>
 			</div>
 
-			{#if importMethod === 'quizlet'}
-				<div class="space-y-4">
-					<label class="block">
-						<span class="text-sm font-medium text-gray-700">Quizlet URL</span>
-						<input
-							type="text"
-							bind:value={quizletLink}
-							placeholder="https://quizlet.com/..."
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-						/>
-					</label>
-					<p class="text-sm text-gray-500">
-						Paste the URL of any public Quizlet flashcard set to import it.
-					</p>
-				</div>
-			{:else if importMethod === 'csv'}
-				<div class="space-y-4">
-					<label class="block">
-						<span class="text-sm font-medium text-gray-700">Paste CSV Content</span>
-						<textarea
-							bind:value={csvContent}
-							placeholder="term,definition
-vocabulary,the words used in a particular context
-syntax,the arrangement of words in a sentence"
-							class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
-							rows="6"
-						></textarea>
-					</label>
-
-					<div class="flex items-center">
-						<span class="text-sm text-gray-500">OR</span>
-						<div class="mx-3 flex-grow border-t border-gray-300"></div>
-					</div>
-
-					<div class="flex items-center justify-center">
-						<label
-							class="flex w-full cursor-pointer flex-col items-center rounded-md border border-gray-300 bg-white px-4 py-6 shadow-sm hover:bg-gray-50"
-						>
-							<svg class="h-8 w-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-								<path
-									fill-rule="evenodd"
-									d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 5a1 1 0 10-2 0v1.586l-.293-.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 10-1.414-1.414l-.293.293V9z"
-									clip-rule="evenodd"
-								></path>
-							</svg>
-							<span class="mt-2 text-base font-medium text-gray-700">
-								{file ? file.name : 'Upload CSV file'}
-							</span>
-							<input type="file" class="hidden" accept=".csv,.txt" on:change={handleFileInput} />
-						</label>
-					</div>
-				</div>
-			{/if}
+			<div class="space-y-4">
+				<label class="block">
+					<span class="text-sm font-medium text-gray-700">Quizlet URL</span>
+					<input
+						type="text"
+						bind:value={quizletLink}
+						placeholder="https://quizlet.com/..."
+						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+					/>
+					<button
+						on:click={openQuizletUrl}
+						class="flex items-center rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700"
+						disabled={isProcessing}
+					>Open Data</button>
+					<span class="text-sm font-medium text-gray-700">Quizlet Data</span>
+					<input
+						type="text"
+						bind:value={quizletData}
+						placeholder={"{\"response..."}
+						class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+					/>
+				</label>
+				<p class="text-sm text-gray-500">
+					Paste the URL of any public Quizlet flashcard set to import it.
+				</p>
+			</div>
 
 			{#if error}
 				<div class="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-700">

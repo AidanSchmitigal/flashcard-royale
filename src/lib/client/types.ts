@@ -16,7 +16,7 @@ type Game = BaseCollection & {
 
 type Deck = BaseCollection & {
 	ownersIds: string[];
-	cards: string[];
+	cards: Card[];
 };
 
 type QuizCard = {
@@ -24,8 +24,7 @@ type QuizCard = {
 	answer: string;
 };
 
-type Card = BaseCollection & {
-	deckId: string;
+type Card = {
 	question: string;
 	answer: string;
 	baseHealth: number;

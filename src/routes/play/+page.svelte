@@ -91,7 +91,7 @@
 	<section>
 		<h2 class="mb-4 text-2xl font-semibold text-gray-800">Import New Deck</h2>
 		<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<!-- Quizlet Import -->
 				<button
 					on:click={openImportModal}
@@ -104,23 +104,6 @@
 					</svg>
 					<span class="text-lg font-medium text-gray-900">Quizlet Link</span>
 					<p class="mt-1 text-sm text-gray-500">Import from existing Quizlet deck</p>
-				</button>
-
-				<!-- CSV Import -->
-				<button
-					on:click={openImportModal}
-					class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
-					data-import-type="csv"
-				>
-					<svg class="mb-2 h-10 w-10 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-						<path
-							fill-rule="evenodd"
-							d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-							clip-rule="evenodd"
-						></path>
-					</svg>
-					<span class="text-lg font-medium text-gray-900">CSV/Text</span>
-					<p class="mt-1 text-sm text-gray-500">Copy & paste or upload CSV file</p>
 				</button>
 
 				<!-- Create New -->

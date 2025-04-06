@@ -1,7 +1,4 @@
-import { exec } from "child_process";
-import { addDoc, collection, Firestore } from "firebase/firestore";
-
-function gen_url(id: string): string {
+export function gen_url(id: string): string {
     return `https://quizlet.com/webapi/3.4/studiable-item-documents?filters%5BstudiableContainerId%5D=${id}&filters%5BstudiableContainerType%5D=1&perPage=100&page=1`
 }
 
@@ -50,12 +47,13 @@ export function get_cards(json: string): QuizCard[] {
 
     const cards: QuizCard[] = [];
 
-    for (const item in data.responses[0].models.studiableItem) {
-        const question = item[0]
-        const answer = item[1]
+    const cardJson: any[] = data.responses[0].models.studiableItem
+    cardJson.forEach((item) => {
+        const question = item.cardSides[0].media[0].plainText
+        const answer = item.cardSides[0].media[0].plainText
 
         cards.push({ question: question, answer: answer })
-    }
+    })
 
     return cards
 }
